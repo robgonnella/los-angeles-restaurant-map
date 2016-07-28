@@ -4,6 +4,7 @@ var n = require('nonce')();
 var oauthSignature = require('oauth-signature');
 var qs = require('querystring');
 var _ = require('lodash');
+var Restaurant = require("../models/restaurant")
 
 module.exports = function(app) {
   app.get('/api/yelp', function(req, res, next){
