@@ -6,7 +6,7 @@ var restaurantSchema = mongoose.Schema({
   name:         String,
   location:     String,
   description:  String,
-  yelp:         Boolean,
+  type:         String,
   lat:          Number,
   lon:          Number
 })

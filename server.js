@@ -12,8 +12,8 @@ require('dotenv').load();
 var app = express();
 
 //set up local variables
-app.set('title', env.TITLE);
-app.set('safe-title', env.SAFE_TITLE);
+app.set('title', env.title);
+app.set('safe-title', env.safe_title);
 app.locals.title = app.get('title');
 
 // view engine setup
