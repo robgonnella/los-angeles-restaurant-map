@@ -11,6 +11,7 @@ require('dotenv').load();
 
 var app = express();
 
+//set up local variables
 app.set('title', env.TITLE);
 app.set('safe-title', env.SAFE_TITLE);
 app.locals.title = app.get('title');
@@ -27,8 +28,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use('/', routes);
-// app.use('/users', users);
+// pass app to routers
+require('./routes/app-router')(app);
+require('./routes/data-router')(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
