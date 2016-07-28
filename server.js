@@ -4,11 +4,16 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var env = require('./config/environment')
+var mongoose = require('./config/database');
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
+require('dotenv').load();
 
 var app = express();
+
+app.set('title', env.TITLE);
+app.set('safe-title', env.SAFE_TITLE);
+app.locals.title = app.get('title');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -18,12 +23,12 @@ app.set('view engine', 'ejs');
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/users', users);
+// app.use('/', routes);
+// app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
