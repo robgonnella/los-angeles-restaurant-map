@@ -7,6 +7,7 @@ module.exports = (function() {
   var apiUri = "https://api.what3words.com/v2/reverse"
   var keyParam = "&key=" + process.env.W3W_KEY;
 
+  //accesses what 3 words api and populates w3w field for all restaurants in database
   Restaurant.find({}, function(err, restaurants){
     if(err) return console.log("Error retrieving restaurants from database", err);
     async.each(restaurants, function(r, acb){

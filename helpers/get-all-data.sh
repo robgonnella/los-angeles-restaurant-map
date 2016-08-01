@@ -1,3 +1,6 @@
+# use this script to get all data from both yelp and foursquare and save in db
+# populate all w3w fields for all restaurants in db
+
 echo "getting data from yelp..."
 
 sleep 2

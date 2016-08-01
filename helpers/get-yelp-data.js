@@ -8,6 +8,9 @@ var mongoose = require('../config/database')
 var Restaurant = require("../models/restaurant")
 var app = require('../server');
 
+//check if business exits in db first before saving
+//allow different names at same location to account for
+//multiple businesses in one location (i.e. strip mall)
 function saveYelpList(businesses, wcb){
   async.eachSeries(businesses, function(business, scb){
     var newRestaurant = {
@@ -18,7 +21,7 @@ function saveYelpList(businesses, wcb){
       lat:       business.location.coordinate.latitude,
       lon:       business.location.coordinate.longitude
     }
-    Restaurant.find({lat: newRestaurant.lat, lon: newRestaurant.lon}, function(err, r){
+    Restaurant.find({lat: newRestaurant.lat, lon: newRestaurant.lon, name: newRestaurant.name}, function(err, r){
       if(r.length) {
         console.log(`----------${r.length} restaurant(s) for ${newRestaurant.name} found in database already`);
         return scb()
@@ -39,6 +42,8 @@ function saveYelpList(businesses, wcb){
   })
 }
 
+//requests data from yelp using url
+//pass returned data to next function
 function getYelpData(apiUrl, wcb) {
   console.log("Accessing Yelp Api...")
 
@@ -54,6 +59,8 @@ function getYelpData(apiUrl, wcb) {
   })
 }
 
+//get OAuth signature and set up url query paramenters
+//pass url to next function in waterfall
 function getOAuthSignature(wcb) {
   var key      = process.env.YELP_CONSUMER_KEY,
   secret       = process.env.YELP_CONSUMER_SECRET,

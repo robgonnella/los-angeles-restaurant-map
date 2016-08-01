@@ -9,6 +9,9 @@ var mongoose = require("../config/database")
 var Restaurant = require("../models/restaurant");
 require('../server');
 
+//check if business exits in db first before saving
+//allow different names at same location to account for
+//multiple businesses in one location (i.e. strip mall)
 function saveFsqVenues(venues, wcb) {
   console.log("saving new venues...")
   async.eachSeries(venues, function(venue, scb){
@@ -19,7 +22,7 @@ function saveFsqVenues(venues, wcb) {
       lat:        venue.location.lat,
       lon:        venue.location.lng
     }
-    Restaurant.find({lat: newVenue.lat, lon: newVenue.lon}, function(err, v){
+    Restaurant.find({lat: newVenue.lat, lon: newVenue.lon, name: newVenue.name}, function(err, v){
       if(v.length) {
         console.log(`----------${v.length} restaurant(s) for ${newVenue.name} found in database already`);
         return scb();
@@ -38,6 +41,8 @@ function saveFsqVenues(venues, wcb) {
   });
 }
 
+//requests data from yelp using url
+//pass returned data to next function
 function getFSQData(url, wcb){
   console.log("getting data from fs...")
   rp(url, function(err, data){
@@ -52,7 +57,9 @@ function getFSQData(url, wcb){
   });
 }
 
-function getFsqOAuthSignature(wcb) {
+//set up url query parameters
+//pass url to next function in waterfall
+function setQueryParams(wcb) {
   console.log("process beginning...creating fs url")
   var baseUri = "https://api.foursquare.com/v2/venues/search?near=Los%20Angeles%20CA"
   var client_id = "client_id=" + process.env.FS_ID;
@@ -65,7 +72,7 @@ function getFsqOAuthSignature(wcb) {
 module.exports = async.waterfall([
 
   function(wcb) {
-    getFsqOAuthSignature(wcb);
+    setQueryParams(wcb);
   },
 
   function(url, wcb) {
