@@ -29,7 +29,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // pass app to routers
-require('./routes/app-router')(app);
+require('./routes/api-routes')(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
