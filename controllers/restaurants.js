@@ -36,33 +36,16 @@ var create = function(req,res,next) {
 
     //geolocate new business and get lat lng
     function(cb) {
-      geocoder.geocode(newR.location, function(err, data){
+      geolocate(newR, function(err, data){
         if(err) return cb(err)
-        newR.lat = data.results[0].geometry.location.lat
-        newR.lon = data.results[0].geometry.location.lng
         cb()
-      });
+      })
     },
 
     //access what 3 words api to populate w3w field
     function(cb) {
-      var url = "https://api.what3words.com/v2/reverse"
-      var queryParams = {
-        key: process.env.W3W_KEY,
-        coords: `${newR.lat},${newR.lon}`
-      }
-      var paramsUrl = qs.stringify(queryParams);
-      var apiUrl = url + '?' + paramsUrl;
-
-      rp(apiUrl, function(err, data){
+      getW3w(newR, function(err, data){
         if(err) return cb(err)
-        try{
-          data = JSON.parse(data.body)
-        }
-        catch(e) {
-          console.log(e.stack);
-        }
-        newR.w3w = data.words
         cb()
       });
     },
@@ -77,15 +60,17 @@ var create = function(req,res,next) {
 
         R.create(newR, function(err, savedR){
           if(err) return cb(err);
-          cb({
+          var result = {
             success: true,
             message: `successfully saved ${savedR.name} in the database`,
             data: savedR
-          });
+          };
+          cb(null, result);
         })
       })
     }
-  ], function(result){
+  ], function(err, result){
+    if(err) res.json({error: err})
     if(result) res.json(result);
   })
 
@@ -94,22 +79,93 @@ var create = function(req,res,next) {
 //update business
 var update = function(req,res,next) {
   R.findById(req.params.id, function(err, foundR){
-    if(err) res.json({error: err});
+    if(err) return res.json({
+      error: err.message,
+      message: 'Unable to find a business with that ID'
+    });
+
+    //change fields to new values
     for(var prop in req.body) {
-      foundR[prop] = foudR[prop] === req.body[prop] ? foundR[prop] : req.body[prop];
+      foundR[prop] = foundR[prop] === req.body[prop] ? foundR[prop] : req.body[prop];
     }
-    foundR.save();
+
+    //geolocate again just in case location was updated
+    geolocate(foundR, function(err, updatedR){
+      if(err) return res.json({error: err});
+
+      //check to make sure changes don't conflict with existing records
+      R.find({lat: updatedR.lat, lon: updatedR.lon, name: updatedR.name}, function(err, newFr){
+        if(err) return res.json({error: err});
+        if(newFr.length) return res.json({
+          success: false,
+          message: `another business with same name and address already exits in db`
+        })
+
+        //update w3w field for new info
+        getW3w(updatedR, function(err, w3wUpdatedR){
+          if(err) return res.json({error: err});
+          //save updated record
+          w3wUpdatedR.save(function(err, savedR){
+            if(err) return res.json({error: err});
+            res.json({
+              success: true,
+              message: `successfully updated info!`,
+              data: savedR
+            })
+          });
+        })
+      })
+    })
   })
 }
 
 //delete business
 var destroy = function(req,res,next) {
   R.remove({_id: req.params.id}, function(err){
-    if(err) res.json({error: err});
+    if(err) res.json({
+      error: err.message,
+      message: "unable to find a business with that ID"
+    });
     res.json({
       success: true,
       message: 'successfully deleted restaurant'
     });
+  });
+}
+
+function geolocate(newR, cb) {
+  geocoder.geocode(newR.location, function(err, data){
+    if(err) return cb(err)
+    if(data.results.length){
+      newR.lat = data.results[0].geometry.location.lat
+      newR.lon = data.results[0].geometry.location.lng
+      cb(null, newR)
+    }
+    else {
+      cb('invalid location')
+    }
+  });
+}
+
+function getW3w(r, cb){
+  var url = "https://api.what3words.com/v2/reverse"
+  var queryParams = {
+    key: process.env.W3W_KEY,
+    coords: `${r.lat},${r.lon}`
+  }
+  var paramsUrl = qs.stringify(queryParams);
+  var apiUrl = url + '?' + paramsUrl;
+
+  rp(apiUrl, function(err, data){
+    if(err) return cb(err)
+    try{
+      data = JSON.parse(data.body)
+    }
+    catch(e) {
+      console.log(e.stack);
+    }
+    r.w3w = data.words
+    cb(null, r)
   });
 }
 
