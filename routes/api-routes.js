@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router()
 var restaurantController = require('../controllers/restaurants')
 
+//create RESTful API routes
 module.exports = function(app) {
 
   app.use('/api', router)
