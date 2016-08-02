@@ -8,7 +8,7 @@ var async = require('async')
 // returns all restaurants in database
 var index = function(req,res,next) {
   R.find({}, function(err, rs){
-    if(err) return res.json({error: err})
+    if(err) return res.status(500).json({error: err})
     res.json({restaurants: rs});
   })
 }
@@ -16,7 +16,7 @@ var index = function(req,res,next) {
 // returns one specifuc restaurant based on id parameter
 var show = function(req,res,next) {
   R.findById(req.params.id, function(err, foundR){
-    if(err) return res.json({error: err})
+    if(err) return res.status(404).json({error: err})
     res.json({ restaurant: foundR });
   })
 }
@@ -30,7 +30,7 @@ var create = function(req,res,next) {
   }
 
   // require location for geolocation
-  if(!newR.location) return res.json({error: "you must include location"})
+  if(!newR.location) return res.status(500).json({error: "you must include location"})
 
   async.series([
 
@@ -70,7 +70,7 @@ var create = function(req,res,next) {
       })
     }
   ], function(err, result){
-    if(err) res.json({error: err})
+    if(err) res.status(500).json({error: err})
     if(result) res.json(result);
   })
 
@@ -79,7 +79,7 @@ var create = function(req,res,next) {
 //update business
 var update = function(req,res,next) {
   R.findById(req.params.id, function(err, foundR){
-    if(err) return res.json({
+    if(err) return res.status(500).json({
       error: err.message,
       message: 'Unable to find a business with that ID'
     });
@@ -91,11 +91,11 @@ var update = function(req,res,next) {
 
     //geolocate again just in case location was updated
     geolocate(foundR, function(err, updatedR){
-      if(err) return res.json({error: err});
+      if(err) return res.status(500).json({error: err});
 
       //check to make sure changes don't conflict with existing records
       R.find({lat: updatedR.lat, lon: updatedR.lon, name: updatedR.name}, function(err, newFr){
-        if(err) return res.json({error: err});
+        if(err) return res.status(500).json({error: err});
         if(newFr.length) return res.json({
           success: false,
           message: `another business with same name and address already exits in db`
@@ -103,7 +103,7 @@ var update = function(req,res,next) {
 
         //update w3w field for new info
         getW3w(updatedR, function(err, w3wUpdatedR){
-          if(err) return res.json({error: err});
+          if(err) return res.status(500).json({error: err});
           //save updated record
           w3wUpdatedR.save(function(err, savedR){
             if(err) return res.json({error: err});
@@ -122,7 +122,7 @@ var update = function(req,res,next) {
 //delete business
 var destroy = function(req,res,next) {
   R.remove({_id: req.params.id}, function(err){
-    if(err) res.json({
+    if(err) res.status(500).json({
       error: err.message,
       message: "unable to find a business with that ID"
     });

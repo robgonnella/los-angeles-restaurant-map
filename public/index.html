@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="hart-app">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+</head>
+<body ng-controller="HartController as vm">
+  <button class='btn btn-primary' ng-click='vm.show = !vm.show'>Create New Restaurant</button>
+
+  <div ng-show=vm.show id='form'>
+    <input ng-model="vm.v.name" placeholder="Name"></input>
+    <input ng-model="vm.v.location" placeholder="Location"></input>
+    <button ng-click='vm.create()' class='btn btn-primary'>Submit</button>
+  </div>
+
+  <div ng-show=vm.showU id='form'>
+    <input ng-model="vm.v.name"></input>
+    <input ng-model="vm.v.location"></input>
+    <button ng-click='vm.update(vm.v)' class='btn btn-primary'>Submit</button>
+  </div>
+
+  <table class='table'>
+    <thead>
+      <tr>
+        <th class="table-head">Name:</th>
+        <th class="table-head">Location:</th>
+      </tr>
+    </thead>
+    <tbody ng-repeat='venue in vm.restaurants'>
+      <tr id='info' ng-click='venue.clicked=!venue.clicked'>
+        <td ng-bind='venue.name'></td>
+        <td ng-bind='venue.location'></td>
+        <td><button class='btn btn-primary' ng-click='vm.select(venue); vm.showU=!vm.showU'>Update</button></td>
+        <td><button class='btn btn-danger' ng-click="vm.delete(venue)">X</button></td>
+      </tr>
+      <tr ng-show="venue.clicked">
+        <td>Type: {{venue.type}}</td>
+        <td>Latitude: {{venue.lat}}</td>
+        <td>Longitude: {{venue.lon}}</td>
+        <td>What 3 Words: {{venue.w3w}}</td>
+      </tr>
+    </tbody>
+  </table>
+<script src="./js/app/main.module.js"></script>
+<script src="./js/app/main.controller.js"></script>
+</body>
+</html>

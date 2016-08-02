@@ -1,8 +1,24 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  text-align: center;
 }
 
-a {
-  color: #00B7FF;
+table, thead, tbody, tr, th, td {
+  margin: 15px auto;
+  text-align: center;
+  padding: 50px;
+}
+
+#info:hover{
+  cursor: pointer;
+}
+
+.table-head{
+  text-align: center;
+}
+
+#form{
+  margin: 15px;
+  padding: 15px;
 }

@@ -12,7 +12,7 @@ var app = require('../server');
 //allow different names at same location to account for
 //multiple businesses in one location (i.e. strip mall)
 function saveYelpList(businesses, wcb){
-  async.eachSeries(businesses, function(business, scb){
+  async.each(businesses, function(business, cb){
     var newRestaurant = {
       name:      business.name,
       location:  business.location.display_address[0],
@@ -24,17 +24,16 @@ function saveYelpList(businesses, wcb){
     Restaurant.find({lat: newRestaurant.lat, lon: newRestaurant.lon, name: newRestaurant.name}, function(err, r){
       if(r.length) {
         console.log(`----------${r.length} restaurant(s) for ${newRestaurant.name} found in database already`);
-        return scb()
+        return cb()
       }
-      console.log(`----------${r.length} restaurant(s) found in database for ${newRestaurant.name}`)
       Restaurant.create(newRestaurant, function(err, savedRest){
         if(err) {
           wcb(err)
         } else {
           console.log(`Saved Yelp Restaurant ${savedRest.name} in the database`);
-          return scb()
+          return cb()
         }
-      })
+      });
     });
   }, function(err){
     if(err) return wcb(err)
@@ -44,18 +43,24 @@ function saveYelpList(businesses, wcb){
 
 //requests data from yelp using url
 //pass returned data to next function
-function getYelpData(apiUrl, wcb) {
+function getYelpData(urlArray, wcb) {
   console.log("Accessing Yelp Api...")
-
-  rp(apiUrl, function(err, data){
+  var businesses = [];
+  async.each(urlArray, function(url, cb){
+    rp(url, function(err, data){
+      if(err) return cb(err);
+      try {
+        data = JSON.parse(data.body)
+      } catch(e){
+        console.log(e.stack)
+      }
+      businesses = businesses.concat(data.businesses);
+      cb()
+    })
+  }, function(err){
     if(err) return wcb(err);
-    try {
-      data = JSON.parse(data.body)
-    } catch(e){
-      console.log(e.stack)
-    }
-    var businesses = data.businesses;
-    return wcb(null, businesses);
+    console.log(`Retrieved ${businesses.length} businesses from yelp`)
+    wcb(null, businesses)
   })
 }
 
@@ -63,33 +68,40 @@ function getYelpData(apiUrl, wcb) {
 //pass url to next function in waterfall
 function getOAuthSignature(wcb) {
   var key      = process.env.YELP_CONSUMER_KEY,
-  secret       = process.env.YELP_CONSUMER_SECRET,
-  token        = process.env.YELP_TOKEN,
-  token_secret = process.env.YELP_TOKEN_SECRET,
-  httpMethod   = "GET",
-  url          = "https://api.yelp.com/v2/search",
+      secret       = process.env.YELP_CONSUMER_SECRET,
+      token        = process.env.YELP_TOKEN,
+      token_secret = process.env.YELP_TOKEN_SECRET,
+      httpMethod   = "GET",
+      baseUrl      = "https://api.yelp.com/v2/search",
+      count        = 0,
+      urlArray     = [];
 
-  query_parameters = {
-    location:        "Los+Angeles",
-    category_filter: "restaurants"
-  };
+  while ( count < 500 ) {
+    var query_parameters = {
+      location:        "Los+Angeles",
+      category_filter: "restaurants",
+      offset:          count.toString(),
+      limit:           '20'
+    };
 
-  var auth_params = {
-    oauth_consumer_key:      key,
-    oauth_token:             token,
-    oauth_nonce:             n(),
-    oauth_timestamp:         n().toString().substr(0,10),
-    oauth_signature_method:  'HMAC-SHA1',
-    oauth_version:           '1.0'
+    var auth_params = {
+      oauth_consumer_key:      key,
+      oauth_token:             token,
+      oauth_nonce:             n(),
+      oauth_timestamp:         n().toString().substr(0,10),
+      oauth_signature_method:  'HMAC-SHA1',
+      oauth_version:           '1.0'
+    }
+
+    var parameters = _.assign(query_parameters, auth_params);
+    var signature = oauthSignature.generate(httpMethod, baseUrl, query_parameters, secret, token_secret, { encodeSignature: false});
+    parameters.oauth_signature = signature;
+    var paramURL = qs.stringify(parameters);
+    var apiUrl = baseUrl + '?' + paramURL;
+    urlArray.push(apiUrl);
+    count += count === 0 ? 21 : 20;
   }
-
-  var parameters = _.assign(query_parameters, auth_params);
-  var signature = oauthSignature.generate(httpMethod, url, query_parameters, secret, token_secret, { encodeSignature: false});
-  parameters.oauth_signature = signature;
-  var paramURL = qs.stringify(parameters);
-  var apiUrl = url + '?' + paramURL;
-  wcb(null, apiUrl);
-
+  wcb(null, urlArray);
 }
 
 
