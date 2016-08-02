@@ -5,7 +5,7 @@ mongoose.Promise = Promise;
 var restaurantSchema = mongoose.Schema({
   name:         String,
   location:     String,
-  description:  String,
+  category:     String,
   type:         String,
   lat:          Number,
   lon:          Number,

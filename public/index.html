@@ -11,14 +11,15 @@
   <button class='btn btn-primary' ng-click='vm.show = !vm.show'>Create New Restaurant</button>
 
   <div ng-show=vm.show id='form'>
-    <input ng-model="vm.v.name" placeholder="Name"></input>
-    <input ng-model="vm.v.location" placeholder="Location"></input>
+    <input ng-model="vm.v.name" placeholder="Name">
+    <input ng-model="vm.v.location" placeholder="Location">
     <button ng-click='vm.create()' class='btn btn-primary'>Submit</button>
   </div>
 
   <div ng-show=vm.showU id='form'>
-    <input ng-model="vm.v.name"></input>
-    <input ng-model="vm.v.location"></input>
+    <input ng-model="vm.v.name">
+    <input ng-model="vm.v.location">
+    <input ng-model="vm.v.category">
     <button ng-click='vm.update(vm.v)' class='btn btn-primary'>Submit</button>
   </div>
 
@@ -38,6 +39,7 @@
       </tr>
       <tr ng-show="venue.clicked">
         <td>Type: {{venue.type}}</td>
+        <td>Type: {{venue.category}}</td>
         <td>Latitude: {{venue.lat}}</td>
         <td>Longitude: {{venue.lon}}</td>
         <td>What 3 Words: {{venue.w3w}}</td>

@@ -26,7 +26,8 @@ var create = function(req,res,next) {
   var newR = {
     name     : req.body.name,
     location : req.body.location,
-    type     : "hart"
+    type     : "hart",
+    category : "Restaurant"
   }
 
   // require location for geolocation

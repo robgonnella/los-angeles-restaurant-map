@@ -13,7 +13,8 @@
 
     vm.v = {
       name:     "",
-      location: ""
+      location: "",
+      category: ""
     }
 
     vm.create = createVenue;
@@ -33,23 +34,13 @@
         console.log(data.data[2].message)
         vm.v.name = "";
         vm.v.location = "";
+        vm.v.category = "";
         vm.show = false;
       })
       .catch(function(err){
         console.log(err.data)
       })
     }
-
-    // function showVenue(v) {
-    //   $http.get('http://localhost:3000/api/restaurant/'+v._id)
-    //   .then(function(data){
-    //     console.log(data.data.restaurant)
-    //     vm.extendedInfo = data.data.restaurant
-    //   })
-    //   .catch(function(err){
-    //     console.log(err)
-    //   })
-    // }
 
     function updateVenue(v) {
       $http({
@@ -61,6 +52,7 @@
         console.log(data.data);
         vm.v.name = "";
         vm.v.location = "";
+        vm.v.category = ""
         vm.v._id = "";
         vm.showU = false;
         getRestaurants();
@@ -98,6 +90,7 @@
     function select(v) {
       vm.v.name = v.name;
       vm.v.location = v.location;
+      vm.v.category = v.category;
       vm.v._id = v._id;
     }
   }
