@@ -10,17 +10,30 @@
 <body ng-controller="HartController as vm">
   <button class='btn btn-primary' ng-click='vm.show = !vm.show'>Create New Restaurant</button>
 
-  <div ng-show=vm.show id='form'>
-    <input ng-model="vm.v.name" placeholder="Name">
-    <input ng-model="vm.v.location" placeholder="Location">
-    <button ng-click='vm.create()' class='btn btn-primary'>Submit</button>
+  <div ng-show=vm.show class='form'>
+    <div class="form-content">
+      <input ng-model="vm.v.name" placeholder="Name">
+      <input ng-model="vm.v.location" placeholder="Location">
+      <input ng-model="vm.v.category" placeholder="Category"><br>
+      <button ng-click='vm.create()' class='btn btn-primary'>Submit</button><br>
+      <button ng-click='vm.show=false; vm.clear()' class='btn btn-danger'>Cancel</button><br>
+    </div>
   </div>
 
-  <div ng-show=vm.showU id='form'>
-    <input ng-model="vm.v.name">
-    <input ng-model="vm.v.location">
-    <input ng-model="vm.v.category">
-    <button ng-click='vm.update(vm.v)' class='btn btn-primary'>Submit</button>
+  <div ng-show=vm.showU class='form'>
+    <div class="form-content">
+      <label>Name:&nbsp;&nbsp;&nbsp;&nbsp;
+        <input ng-model="vm.v.name">
+      </label>
+      <label>Location:
+        <input ng-model="vm.v.location">
+      </label>
+      <label>Category:
+        <input ng-model="vm.v.category"><br>
+      </label>
+      <button ng-click='vm.update(vm.v)' class='btn btn-primary'>Submit</button><br>
+      <button ng-click='vm.showU=false; vm.clear()' class='btn btn-danger'>Cancel</button><br>
+    </div>
   </div>
 
   <table class='table'>
@@ -39,7 +52,7 @@
       </tr>
       <tr ng-show="venue.clicked">
         <td>Type: {{venue.type}}</td>
-        <td>Type: {{venue.category}}</td>
+        <td>Category: {{venue.category}}</td>
         <td>Latitude: {{venue.lat}}</td>
         <td>Longitude: {{venue.lon}}</td>
         <td>What 3 Words: {{venue.w3w}}</td>

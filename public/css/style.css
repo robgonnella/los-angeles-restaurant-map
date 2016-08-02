@@ -18,7 +18,24 @@ table, thead, tbody, tr, th, td {
   text-align: center;
 }
 
-#form{
-  margin: 15px;
+.form{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-top: -150px;
+  margin-left: -150px;
+  height: 300px;
+  width: 300px;
+  background-color: dodgerblue;
+  border-radius: 10px;
+}
+.form-content {
   padding: 15px;
+  height: 150px;
+  top: 150px;
+}
+
+.form-content input, .form-content button {
+  margin: 10px;
+  width: 150px;
 }

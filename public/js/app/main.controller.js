@@ -22,6 +22,7 @@
     vm.update = updateVenue;
     vm.delete = deleteVenue;
     vm.select = select;
+    vm.clear = clear;
 
     function createVenue() {
       console.log(vm.v)
@@ -32,9 +33,7 @@
       })
       .then(function(data){
         console.log(data.data[2].message)
-        vm.v.name = "";
-        vm.v.location = "";
-        vm.v.category = "";
+        clear()
         vm.show = false;
       })
       .catch(function(err){
@@ -50,10 +49,7 @@
       })
       .then(function(data){
         console.log(data.data);
-        vm.v.name = "";
-        vm.v.location = "";
-        vm.v.category = ""
-        vm.v._id = "";
+        clear()
         vm.showU = false;
         getRestaurants();
       })
@@ -93,5 +89,13 @@
       vm.v.category = v.category;
       vm.v._id = v._id;
     }
+
+    function clear(){
+      vm.v = {
+        name:     "",
+        location: "",
+        category: ""
+      };
+    };
   }
 })();
