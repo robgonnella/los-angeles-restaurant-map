@@ -43,11 +43,11 @@ function getAllRestaurants(wcb) {
 module.exports = async.waterfall([
 
   function(wcb) {
-    getAllRestaurants(wcb),
+    getAllRestaurants(wcb);
   },
 
   function(rs, wcb) {
-    getW3ws(rs, wcb)
+    getW3ws(rs, wcb);
   }
 
 ], function(err, result){
