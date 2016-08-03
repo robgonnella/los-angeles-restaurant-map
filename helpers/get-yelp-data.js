@@ -73,14 +73,14 @@ function getOAuthSignature(wcb) {
       token_secret = process.env.YELP_TOKEN_SECRET,
       httpMethod   = "GET",
       baseUrl      = "https://api.yelp.com/v2/search",
-      count        = 0,
+      offset        = 0,
       urlArray     = [];
 
-  while ( count < 500 ) {
+  while ( offset <= 980 ) {
     var query_parameters = {
       location:        "Los+Angeles",
       category_filter: "restaurants",
-      offset:          count.toString(),
+      offset:          offset.toString(),
       limit:           '20'
     };
 
@@ -99,24 +99,29 @@ function getOAuthSignature(wcb) {
     var paramURL = qs.stringify(parameters);
     var apiUrl = baseUrl + '?' + paramURL;
     urlArray.push(apiUrl);
-    count += count === 0 ? 21 : 20;
+    // offset += offset === 0 ? 21 : 20;
+    offset += 20;
   }
   wcb(null, urlArray);
 }
 
 
 module.exports = async.waterfall([
-  function(wcb){
+
+  function(wcb) {
     getOAuthSignature(wcb);
   },
-  function(apiUrl, wcb){
+
+  function(apiUrl, wcb) {
     getYelpData(apiUrl, wcb);
   },
-  function(businesses, wcb){
+
+  function(businesses, wcb) {
     saveYelpList(businesses, wcb);
   }
+
 ], function(err, result){
   if(err) console.log("Error -->", err);
   if(result) console.log("Result -->", result);
   mongoose.disconnect();
-})
+});

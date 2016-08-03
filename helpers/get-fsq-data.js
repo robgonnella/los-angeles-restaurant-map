@@ -112,21 +112,23 @@ function getCategories(wcb) {
 module.exports = async.waterfall([
 
   function(wcb) {
-    getCategories(wcb);
+    getCategories(wcb),
   },
 
   function(ids, wcb) {
-    setQueryParams(ids, wcb);
+    setQueryParams(ids, wcb),
   },
 
   function(urls, wcb) {
-    getFSQData(urls, wcb);
+    getFSQData(urls, wcb),
   },
 
   function(venues, wcb) {
-    saveFsqVenues(venues, wcb);
+    saveFsqVenues(venues, wcb)
   }
+
 ], function(err, result){
   if(err) console.log("Error -->",err)
   if(result) console.log("Result -->",result)
+  mongoose.disconnect();
 });
