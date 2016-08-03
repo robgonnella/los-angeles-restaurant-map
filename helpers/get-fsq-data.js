@@ -112,15 +112,15 @@ function getCategories(wcb) {
 module.exports = async.waterfall([
 
   function(wcb) {
-    getCategories(wcb),
+    getCategories(wcb);
   },
 
   function(ids, wcb) {
-    setQueryParams(ids, wcb),
+    setQueryParams(ids, wcb);
   },
 
   function(urls, wcb) {
-    getFSQData(urls, wcb),
+    getFSQData(urls, wcb);
   },
 
   function(venues, wcb) {
