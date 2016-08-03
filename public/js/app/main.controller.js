@@ -2,12 +2,12 @@
   'use strict';
 
   angular
-    .module('hart-app')
-    .controller('HartController', HartController);
+    .module('yelp-fsq-app')
+    .controller('MainController', MainController);
 
-  HartController.$inject = ['$http'];
+  MainController.$inject = ['$http'];
 
-  function HartController($http){
+  function MainController($http){
     var vm = this;
     getRestaurants();
 

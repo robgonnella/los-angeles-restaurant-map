@@ -26,7 +26,6 @@ var create = function(req,res,next) {
   var newR = {
     name     : req.body.name,
     location : req.body.location,
-    type     : "hart",
     category : "Restaurant"
   }
 

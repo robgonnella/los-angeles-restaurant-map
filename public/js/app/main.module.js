@@ -2,6 +2,6 @@
   'use strict';
 
   angular
-    .module('hart-app', []);
-    
+    .module('yelp-fsq-app', []);
+
 })();

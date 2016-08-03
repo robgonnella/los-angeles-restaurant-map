@@ -1,8 +1,8 @@
 var _ = require('lodash');
 
 var localEnvVars = {
-  title:      'hart-test-app',
-  safe_title: 'hart-test-app'
+  title:      'yelp-fsq-example',
+  safe_title: 'yelp-fsq-example'
 };
 
 module.exports = _.extend(process.env, localEnvVars);

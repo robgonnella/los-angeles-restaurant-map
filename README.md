@@ -1,4 +1,4 @@
-# Hart-Test-App
+# Yelp FourSquare API Example APP
 
 
 ### Objective:
@@ -18,10 +18,10 @@
 * execute ./helpers/get-all-data.sh to populate database with all data from yelp and foursquare. This script will also take care of avoiding duplicates and will update w3w fields automatically as well
 
 * scripts can be run individually as well
-* 
+*
 ```
 list of helper scripts:
-* get-all-data.sh 
+* get-all-data.sh
 * get-yelp-data.js
 * get-fsq-data.js
 * update-w3w-data.js
