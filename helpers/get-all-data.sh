@@ -1,7 +1,7 @@
 # use this script to get all data from both yelp and foursquare and save in db
 # populate all w3w fields for all restaurants in db
 
-echo "getting data from yelp..."
+echo "process beginning for yelp data..."
 
 sleep 2
 
@@ -9,7 +9,7 @@ node /Users/burlweathers/code/yelp-foursquare-example/helpers/get-yelp-data.js
 
 sleep 2
 
-echo "getting data from foursquare..."
+echo "process beginning for foursquare data..."
 
 node /Users/burlweathers/code/yelp-foursquare-example/helpers/get-fsq-data.js
 

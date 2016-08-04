@@ -66,7 +66,7 @@ function getFSQData(urls, wcb){
 //set up url query parameters
 //pass url to next function in waterfall
 function setQueryParams(ids, wcb) {
-  console.log("creating query url array");
+  console.log("creating query url array...");
   var baseUri = "https://api.foursquare.com/v2/venues/search?near=Los%20Angeles%20CA&categoryId="
   var client_id = "client_id=" + process.env.FS_ID;
   var client_secret = "client_secret=" + process.env.FS_SECRET;
@@ -80,7 +80,7 @@ function setQueryParams(ids, wcb) {
 }
 
 function getCategories(wcb) {
-  console.log("process beginning...getting category ids")
+  console.log("getting category ids...")
   var baseUri = "https://api.foursquare.com/v2/venues/categories?"
   var client_id = "client_id=" + process.env.FS_ID;
   var client_secret = "client_secret=" + process.env.FS_SECRET;
