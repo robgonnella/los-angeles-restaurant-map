@@ -7,7 +7,7 @@ require('../server');
 function getW3ws(rs, wcb) {
   var baseUri = "https://api.what3words.com/v2/reverse"
   var keyParam = "&key=" + process.env.W3W_KEY;
-  async.each(rs, function(r, acb){
+  async.eachLimit(rs, 100, function(r, acb){
     if(r.w3w) {
       acb();
     } else {
