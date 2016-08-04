@@ -13,20 +13,25 @@ var app = require('../server');
 //multiple businesses in one location (i.e. strip mall)
 function saveYelpList(businesses, wcb){
   async.each(businesses, function(business, cb){
-    var newRestaurant = {
+    var newR = {
       name:      business.name,
-      location:  business.location.display_address[0],
+      location:  business.location.display_address.join(' ').replace(/,/gmi, '').toLowerCase(),
       category:  'Restaurant',
       lat:       business.location.coordinate.latitude,
       lon:       business.location.coordinate.longitude
     }
-    
-    Yelp_R.create(newRestaurant, function(err, savedRest){
-      if(err) return wcb(err)
-      console.log(`Saved Yelp Restaurant ${savedRest.name} in the Yelp collection`);
-      cb()
-    });
-
+    Yelp_R.find({name: newR.name, location: newR.location}, function(err, foundR) {
+      if (err) return cb(err);
+      if (foundR.length) {
+        console.log(`---------- ${foundR.length} restaurant named ${foundR[0].name} at ${foundR[0].location} already in database ------ skipped`);
+        return cb();
+      }
+      Yelp_R.create(newRestaurant, function(err, savedRest){
+        if(err) return wcb(err)
+        console.log(`Saved Yelp Restaurant ${savedRest.name} in the Yelp collection`);
+        cb()
+      });
+    })
   }, function(err){
     if(err) return wcb(err)
     wcb(null, "process complete!")
@@ -98,7 +103,7 @@ function getOAuthSignature(wcb) {
 }
 
 
-module.exports = async.waterfall([
+async.waterfall([
 
   function(wcb) {
     getOAuthSignature(wcb);

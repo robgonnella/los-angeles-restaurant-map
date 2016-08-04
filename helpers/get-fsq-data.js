@@ -15,20 +15,26 @@ require('../server');
 function saveFsqVenues(venues, wcb) {
   console.log("saving new venues...")
   async.eachSeries(venues, function(venue, scb){
-    var newVenue = {
+    var loc = venue.location.address + " " + venue.location.city + " " + venue.location.state
+    var newV = {
       name:       venue.name,
-      location:   venue.location.address + " " + venue.location.city + " " + venue.location.state,
+      location:   loc.replace(/,/gmi, '').toLowerCase(),
       category:   'Restaurant',
       lat:        venue.location.lat,
       lon:        venue.location.lng
     }
-
-    Fsq_R.create(newVenue, function(err, newV){
-      if(err) wcb(err);
-      console.log(`Saved FSQ Restaurant ${newV.name} in FourSquare collection`)
-      scb()
-    });
-
+    Fsq.find({name: newV.name, location: newV.location}, function(err, foundV) {
+      if (err) return cb(err);
+      if (foundV.length) {
+        console.log(`---------- ${foundV.length} restaurant named ${foundV[0].name} at ${foundV[0].location} already in database ------ skipped`);
+        return cb();
+      }
+      Fsq_R.create(newVenue, function(err, savedV){
+        if(err) wcb(err);
+        console.log(`Saved FSQ Restaurant ${savedV.name} in FourSquare collection`)
+        scb()
+      });
+    })
   }, function(err){
     if(err) return wcb(err)
     mongoose.disconnect();
@@ -104,7 +110,7 @@ function getCategories(wcb) {
   });
 }
 
-module.exports = async.waterfall([
+async.waterfall([
 
   function(wcb) {
     getCategories(wcb);

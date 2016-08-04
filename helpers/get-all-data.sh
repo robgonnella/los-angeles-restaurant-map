@@ -21,3 +21,9 @@ echo "updating w3w info for all restaurants..."
 sleep 2
 
 node /Users/burlweathers/code/yelp-foursquare-example/helpers/update-w3w-data.js
+
+echo "creating hygiened list and saving in separate restaurants collection..."
+
+sleep 2
+
+node /Users/burlweathers/code/yelp-foursquare-example/helpers/hygiene-data.js

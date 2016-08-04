@@ -52,7 +52,7 @@ function getYelpList(wcb) {
   });
 }
 
-module.exports = async.waterfall([
+async.waterfall([
 
   function(wcb) {
     getYelpList(wcb);

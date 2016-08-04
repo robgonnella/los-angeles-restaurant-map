@@ -4,30 +4,40 @@ var Fsq_R = require('../models/fsq');
 var Rt = require('../models/restaurant');
 var _ = require('lodash');
 var async = require('async');
+require('../server');
 
 function hygienateData(list, wcb) {
 
-  var h_list = _.uniqBy(list, 'w3w', 'name');
+  var h_list = _.uniqBy(list, 'location', 'name');
 
   console.log(`preparing to save ${h_list.length} restaurants in database...`)
 
   async.each(h_list, function(r, cb) {
-    console.log(r)
-    Rt.find({name: r.name, w3w: r.w3w}, function(err, foundR) {
+    var newR = {
+      name:     r.name,
+      location: r.location,
+      category: r.category,
+      lat:      r.lat,
+      lon:      r.lon,
+      w3w:      r.w3w
+    }
+
+    Rt.find({name: newR.name, location: newR.location}, function(err, foundR) {
       if(err) return cb(err);
       if(foundR.length) {
         console.log(`---------- ${foundR.length} restaurant with name ${foundR[0].name} at ${foundR[0].location} found in database already ---- skipped`)
         return cb()
       }
-      Rt.create(r, function(err, newR) {
+      Rt.create(newR, function(err, savedR) {
         if (err) return cb(err);
-        console.log(`Saved restaurant ${newR.name} in the hygienated Restaurant collection`);
+        console.log(`Saved restaurant ${savedR.name} in the hygienated Restaurant collection`);
         cb();
       })
     })
   }, function(err) {
     if(err) return wcb(err);
     wcb("successfully saved hygiened list in database")
+    mongoose.disconnect();
   })
 }
 
@@ -70,7 +80,4 @@ async.waterfall([
 ], function(err, result) {
   if (err) return console.log(err);
   console.log(result);
-  mongoose.disconnect();
-  mongoose.disconnect();
-  mongoose.disconnect();
 })
