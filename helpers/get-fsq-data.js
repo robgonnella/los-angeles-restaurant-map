@@ -17,14 +17,14 @@ function saveFsqVenues(venues, wcb) {
   async.eachSeries(venues, function(venue, scb){
     var newVenue = {
       name:       venue.name,
-      location:   venue.location.address + venue.location.city + venue.location.state,
+      location:   venue.location.address + " " + venue.location.city + " " + venue.location.state,
       category:   'Restaurant',
       lat:        venue.location.lat,
       lon:        venue.location.lng
     }
     Restaurant.find({lat: newVenue.lat, lon: newVenue.lon, name: newVenue.name}, function(err, v){
       if(v.length) {
-        console.log(`----------${v.length} restaurant named ${newVenue.name} at this location found in database already`);
+        console.log(`----------${v.length} restaurant named ${v[0].name} at ${v[0].location} found in database already`);
         return scb();
       }
       Restaurant.create(newVenue, function(err, newV){

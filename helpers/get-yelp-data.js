@@ -22,7 +22,7 @@ function saveYelpList(businesses, wcb){
     }
     Restaurant.find({lat: newRestaurant.lat, lon: newRestaurant.lon, name: newRestaurant.name}, function(err, r){
       if(r.length) {
-        console.log(`----------${r.length} restaurant named ${newRestaurant.name} at this location found in database already`);
+        console.log(`----------${r.length} restaurant named ${r[0].name} at ${r[0].location} found in database already`);
         return cb()
       }
       Restaurant.create(newRestaurant, function(err, savedRest){
