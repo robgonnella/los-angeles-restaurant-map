@@ -23,7 +23,7 @@ function saveFsqVenues(venues, wcb) {
       lat:        venue.location.lat,
       lon:        venue.location.lng
     }
-    Fsq.find({name: newV.name, location: newV.location}, function(err, foundV) {
+    Fsq_R.find({name: newV.name, location: newV.location}, function(err, foundV) {
       if (err) return cb(err);
       if (foundV.length) {
         console.log(`---------- ${foundV.length} restaurant named ${foundV[0].name} at ${foundV[0].location} already in database ------ skipped`);
