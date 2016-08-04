@@ -6,7 +6,7 @@ var oauthSignature = require('oauth-signature');
 var qs = require('querystring');
 var _ = require('lodash');
 var mongoose = require("../config/database")
-var Restaurant = require("../models/restaurant");
+var Fsq_R = require("../models/fsq");
 require('../server');
 
 //check if business exits in db first before saving
@@ -22,14 +22,14 @@ function saveFsqVenues(venues, wcb) {
       lat:        venue.location.lat,
       lon:        venue.location.lng
     }
-    Restaurant.find({lat: newVenue.lat, lon: newVenue.lon, name: newVenue.name}, function(err, v){
+    Fsq_R.find({lat: newVenue.lat, lon: newVenue.lon, name: newVenue.name}, function(err, v){
       if(v.length) {
         console.log(`----------${v.length} restaurant named ${v[0].name} at ${v[0].location} found in database already`);
         return scb();
       }
-      Restaurant.create(newVenue, function(err, newV){
+      Fsq_R.create(newVenue, function(err, newV){
         if(err) wcb(err);
-        console.log(`Saved FSQ Restaurant ${newV.name} in database`)
+        console.log(`Saved FSQ Restaurant ${newV.name} in FourSquare collection`)
         return scb()
       });
     })

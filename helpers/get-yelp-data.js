@@ -5,7 +5,7 @@ var oauthSignature = require('oauth-signature');
 var qs = require('querystring');
 var _ = require('lodash');
 var mongoose = require('../config/database')
-var Restaurant = require("../models/restaurant")
+var Yelp_R = require("../models/yelp")
 var app = require('../server');
 
 //check if business exits in db first before saving
@@ -20,16 +20,16 @@ function saveYelpList(businesses, wcb){
       lat:       business.location.coordinate.latitude,
       lon:       business.location.coordinate.longitude
     }
-    Restaurant.find({lat: newRestaurant.lat, lon: newRestaurant.lon, name: newRestaurant.name}, function(err, r){
+    Yelp_R.find({lat: newRestaurant.lat, lon: newRestaurant.lon, name: newRestaurant.name}, function(err, r){
       if(r.length) {
         console.log(`----------${r.length} restaurant named ${r[0].name} at ${r[0].location} found in database already`);
         return cb()
       }
-      Restaurant.create(newRestaurant, function(err, savedRest){
+      Yelp_R.create(newRestaurant, function(err, savedRest){
         if(err) {
           wcb(err)
         } else {
-          console.log(`Saved Yelp Restaurant ${savedRest.name} in the database`);
+          console.log(`Saved Yelp Restaurant ${savedRest.name} in the Yelp collection`);
           return cb()
         }
       });
