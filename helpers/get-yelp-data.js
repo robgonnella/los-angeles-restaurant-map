@@ -26,7 +26,7 @@ function saveYelpList(businesses, wcb){
         console.log(`---------- ${foundR.length} restaurant named ${foundR[0].name} at ${foundR[0].location} already in database ------ skipped`);
         return cb();
       }
-      Yelp_R.create(newRestaurant, function(err, savedRest){
+      Yelp_R.create(newR, function(err, savedRest){
         if(err) return wcb(err)
         console.log(`Saved Yelp Restaurant ${savedRest.name} in the Yelp collection`);
         cb()
