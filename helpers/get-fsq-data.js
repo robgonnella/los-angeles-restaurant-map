@@ -24,7 +24,7 @@ function saveFsqVenues(venues, wcb) {
     }
     Restaurant.find({lat: newVenue.lat, lon: newVenue.lon, name: newVenue.name}, function(err, v){
       if(v.length) {
-        console.log(`----------${v.length} restaurant(s) for ${newVenue.name} found in database already`);
+        console.log(`----------${v.length} restaurant named ${newVenue.name} at this location found in database already`);
         return scb();
       }
       Restaurant.create(newVenue, function(err, newV){
