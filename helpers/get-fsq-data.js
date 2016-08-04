@@ -24,12 +24,12 @@ function saveFsqVenues(venues, wcb) {
       lon:        venue.location.lng
     }
     Fsq_R.find({name: newV.name, location: newV.location}, function(err, foundV) {
-      if (err) return cb(err);
+      if (err) return scb(err);
       if (foundV.length) {
         console.log(`---------- ${foundV.length} restaurant named ${foundV[0].name} at ${foundV[0].location} already in database ------ skipped`);
-        return cb();
+        return scb();
       }
-      Fsq_R.create(newVenue, function(err, savedV){
+      Fsq_R.create(newV, function(err, savedV){
         if(err) wcb(err);
         console.log(`Saved FSQ Restaurant ${savedV.name} in FourSquare collection`)
         scb()
