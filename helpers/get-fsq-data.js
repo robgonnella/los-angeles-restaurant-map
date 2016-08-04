@@ -19,7 +19,6 @@ function saveFsqVenues(venues, wcb) {
       name:       venue.name,
       location:   venue.location.address + venue.location.city + venue.location.state,
       category:   'Restaurant',
-      type:       'fsq',
       lat:        venue.location.lat,
       lon:        venue.location.lng
     }

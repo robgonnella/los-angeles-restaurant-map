@@ -17,7 +17,6 @@ function saveYelpList(businesses, wcb){
       name:      business.name,
       location:  business.location.display_address[0],
       category:  'Restaurant',
-      type:      'yelp',
       lat:       business.location.coordinate.latitude,
       lon:       business.location.coordinate.longitude
     }
