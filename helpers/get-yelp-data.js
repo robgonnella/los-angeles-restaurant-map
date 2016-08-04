@@ -20,20 +20,13 @@ function saveYelpList(businesses, wcb){
       lat:       business.location.coordinate.latitude,
       lon:       business.location.coordinate.longitude
     }
-    Yelp_R.find({lat: newRestaurant.lat, lon: newRestaurant.lon, name: newRestaurant.name}, function(err, r){
-      if(r.length) {
-        console.log(`----------${r.length} restaurant named ${r[0].name} at ${r[0].location} found in database already`);
-        return cb()
-      }
-      Yelp_R.create(newRestaurant, function(err, savedRest){
-        if(err) {
-          wcb(err)
-        } else {
-          console.log(`Saved Yelp Restaurant ${savedRest.name} in the Yelp collection`);
-          return cb()
-        }
-      });
+    
+    Yelp_R.create(newRestaurant, function(err, savedRest){
+      if(err) return wcb(err)
+      console.log(`Saved Yelp Restaurant ${savedRest.name} in the Yelp collection`);
+      cb()
     });
+
   }, function(err){
     if(err) return wcb(err)
     wcb(null, "process complete!")

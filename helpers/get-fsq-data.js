@@ -22,17 +22,13 @@ function saveFsqVenues(venues, wcb) {
       lat:        venue.location.lat,
       lon:        venue.location.lng
     }
-    Fsq_R.find({lat: newVenue.lat, lon: newVenue.lon, name: newVenue.name}, function(err, v){
-      if(v.length) {
-        console.log(`----------${v.length} restaurant named ${v[0].name} at ${v[0].location} found in database already`);
-        return scb();
-      }
-      Fsq_R.create(newVenue, function(err, newV){
-        if(err) wcb(err);
-        console.log(`Saved FSQ Restaurant ${newV.name} in FourSquare collection`)
-        return scb()
-      });
-    })
+
+    Fsq_R.create(newVenue, function(err, newV){
+      if(err) wcb(err);
+      console.log(`Saved FSQ Restaurant ${newV.name} in FourSquare collection`)
+      scb()
+    });
+
   }, function(err){
     if(err) return wcb(err)
     mongoose.disconnect();
