@@ -8,6 +8,13 @@ require('../server');
 
 function hygienateData(list, wcb) {
 
+  list.forEach(function(l) {
+    var c = (/,/gmi).test(l.location);
+    if ( c ) {
+      l.location = l.location.replace(/,/gmi, '').toLowerCase();
+    }
+  });
+
   var h_list = _.uniqBy(list, 'location', 'name');
 
   console.log(`preparing to save ${h_list.length} restaurants in database...`)
@@ -30,7 +37,7 @@ function hygienateData(list, wcb) {
       }
       Rt.create(newR, function(err, savedR) {
         if (err) return cb(err);
-        console.log(`Saved restaurant ${savedR.name} in the hygienated Restaurant collection`);
+        console.log(`Saved restaurant ${savedR.name} ${savedR.location} in the hygienated Restaurant collection`);
         cb();
       })
     })
