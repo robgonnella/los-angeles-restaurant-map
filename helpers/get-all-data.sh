@@ -1,7 +1,7 @@
 # use this script to get all data from both yelp and foursquare and save in db
 # populate all w3w fields for all restaurants in db
 
-dir=$(dirname $BASH_SOURCE[0])
+dir=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
 
 fsq=$dir/get-fsq-data.js
 yelp=$dir/get-yelp-data.js
