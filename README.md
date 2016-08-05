@@ -3,28 +3,31 @@
 
 ### Objective:
 
-* Use Yelp API to get a list of Restaurants in Los Angeles area
+* Use Yelp API to get a list of Restaurants in Los Angeles area and save in Yelp Collection
 
-* Use FourSquare API for additional Restaurants in Los Angeles
+* Use FourSquare API for additional Restaurants in Los Angeles and save in FourSquare Collection
 
-* Reconsile the two lists of Restaurants so there are no duplicates
+* Use What 3 Words API to update a w3w field for all records in both yelp and foursquare collections
 
-* Use What 3 Words API to update a w3w field for all restaurants in the database
+* Reconsile the two lists so there are no duplicates and save in a separate collection called Reatuarants
 
 * Create and expose API for app that allowes user to change the category
 
 ### Instructions
 
+* create .env file with license info set in the following variables: YELP_CONSUMER_KEY, YELP_CONSUMER_SECRET, YELP_TOKEN, YELP_TOKEN_SECRET, FS_ID, FS_SECRET, W3W_KEY
+
 * execute ./helpers/get-all-data.sh to populate database with all data from yelp and foursquare. This script will also take care of avoiding duplicates and will update w3w fields automatically as well
 
 * scripts can be run individually as well
-*
+
 ```
 list of helper scripts:
 * get-all-data.sh
 * get-yelp-data.js
 * get-fsq-data.js
 * update-w3w-data.js
+* hygiene-data.js
 ```
 
 ##API
@@ -43,11 +46,11 @@ Use of the async library along with Yelps offset and limit parameters is used to
 
 FourSquare requests have been created by first creating a list of sub-category IDs for anything in the food category and then made requests for venues for each of those categories in Los Angeles using the "near" parameter
 
-Once all data has been retrieved from both, the list is homogonized by checking to see if the restaurant already exists in the database and saving only if it doesn't.
+After data is obtained from yelp and foursquare requests to the What 3 Words API are made to populate the w3w using reverse geocode
 
-To check if the resturant already exists in the db, I used latitude, longitude and name attributes. This allows different companies that have the same location (i.e. strip mall) to save properly.
+Lodash uniqBy is used to create the unique list. The app then checks the database to see if the restaurant already exists in the database and saving only if it doesn't.
 
-After saving requests to the What 3 Words API are made asynchonously to populate the w3w fields for each restaurant.
+To check if the resturant already exists in the db, I used location and name attributes. This allows different companies to have the same location (i.e. strip mall).
 
 ##Front End
 
@@ -58,7 +61,5 @@ Users Can Create, Edit, and Destroy restaurants
 Request are made using the $http service
 
 ##Bugs and Missing Features
-
-* the w3w script - update-w3w-data.js - will sometimes time-out and will need to be run a couple of times to populate all w3w fields properly
 
 * unit tests have not been created yet
