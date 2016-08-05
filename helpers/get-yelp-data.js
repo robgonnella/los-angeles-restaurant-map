@@ -8,19 +8,175 @@ var mongoose = require('../config/database')
 var Yelp_R = require("../models/yelp")
 var app = require('../server');
 
+// var la_neighborhoods = [
+// "Adams Normandie",
+// "Alhambra",
+// "Arleta",
+// "Arlington Heights",
+// "Arts District",
+// "Athens",
+// "Atwater Village",
+// "Baldwin Hills/Crenshaw",
+// "Bel Air",
+// "Beverly Crest",
+// "Beverly Grove",
+// "Beverly Hills",
+// "Beverlywood",
+// "Boyle Heights",
+// "Brentwood",
+// "Broadway-Manchester",
+// "Burbank",
+// "Canoga Park",
+// "Carthay",
+// "Central Alameda",
+// "Century City",
+// "Chatsworth",
+// "Chesterfield Square",
+// "Cheviot Hills",
+// "Chinatown",
+// "Culver City",
+// "Cypress Park",
+// "Del Rey",
+// "Downtown",
+// "Eagle Rock",
+// "East Hollywood",
+// "East Los Angeles",
+// "Echo Park",
+// "El Segundo",
+// "El Sereno",
+// "Elysian Park",
+// "Encino",
+// "Exposition Park",
+// "Fairfax",
+// "Florence",
+// "Florence-Firestone",
+// "Glassell Park",
+// "Glendale",
+// "Gramercy Park",
+// "Granada Hills",
+// "Green Meadows",
+// "Griffith Park",
+// "Hancock Park",
+// "Harbor City",
+// "Harbor Gateway",
+// "Harvard Heights",
+// "Harvard Park",
+// "Hermosa Beach",
+// "Highland Park",
+// "Historic South Central",
+// "Hollywood",
+// "Hollywood Hills",
+// "Hollywood Hills West",
+// "Huntington Park",
+// "Hyde Park",
+// "Jefferson Park",
+// "Koreatown",
+// "Ladera Heights",
+// "Lake Balboa",
+// "Lake View Terrace",
+// "Larchmont",
+// "Leimert Park",
+// "Lincoln Heights",
+// "Little Tokyo",
+// "Los Feliz",
+// "Manchester Square",
+// "Manhattan Beach",
+// "Mar Vista",
+// "Marina del Rey",
+// "Mid-City",
+// "Mid-Wilshire",
+// "Mission Hills",
+// "Montecito Heights",
+// "Mount Washington",
+// "North Hills",
+// "North Hollywood",
+// "Northridge",
+// "Pacific Palisades",
+// "Pacoima",
+// "Palms",
+// "Panorama City",
+// "Pasadena",
+// "Pico-Robertson",
+// "Pico-Union",
+// "Playa Vista",
+// "Playa del Rey",
+// "Porter Ranch",
+// "Rancho Park",
+// "Redondo Beach",
+// "Reseda",
+// "San Fernando",
+// "San Pedro",
+// "Santa Monica",
+// "Sawtelle",
+// "Sepulveda Basin",
+// "Shadow Hills",
+// "Sherman Oaks",
+// "Silver Lake",
+// "South Park",
+// "South Pasadena",
+// "Studio City",
+// "Sun Valley",
+// "Sunland",
+// "Sylmar",
+// "Tarzana",
+// "Terminal Island",
+// "Toluca Lake",
+// "Torrance",
+// "Tujunga",
+// "UCLA",
+// "Universal City",
+// "University Park",
+// "Valley Glen",
+// "Valley Village",
+// "Van Nuys",
+// "Venice",
+// "Vermont Knolls",
+// "Vermont Square",
+// "Vermont Vista",
+// "Vermont-Slauson",
+// "Vernon",
+// "View Park/Windsor Hills",
+// "Walnut Park",
+// "Watts",
+// "West Adams",
+// "West Hills",
+// "West Hollywood",
+// "West Los Angeles",
+// "Westchester",
+// "Westlake",
+// "Westmont",
+// "Westwood",
+// "Wilmington",
+// "Wilshire Center",
+// "Windsor Square",
+// "Winnetka",
+// "Woodland Hills"
+// ]
+
 //check if business exits in db first before saving
 //allow different names at same location to account for
 //multiple businesses in one location (i.e. strip mall)
 function saveYelpList(businesses, wcb){
-  async.each(businesses, function(business, cb){
+
+  var uniqBs = _.uniqBy(businesses, 'name', 'location.display_address');
+
+  async.each(uniqBs, function(business, cb){
+
+    var loc = business.location.display_address.join(' ');
+    var lat = business.location.coordinate.latitude ? business.location.coordinate.latitude : null;
+    var lon = business.location.coordinate.longitude ? business.location.coordinate.longitude : null;
+
     var newR = {
       name:      business.name,
-      location:  business.location.display_address.join(' ').replace(/,/gmi, '').toLowerCase(),
+      location:  loc,
       category:  'Restaurant',
-      lat:       business.location.coordinate.latitude,
-      lon:       business.location.coordinate.longitude
+      lat:       lat,
+      lon:       lon
     }
-    Yelp_R.find({name: newR.name, location: newR.location}, function(err, foundR) {
+
+    if(!newR.location) return cb();
+
+    Yelp_R.find({name: newR.name, lat: newR.lat, lon: newR.lon}, function(err, foundR) {
       if (err) return cb(err);
       if (foundR.length) {
         console.log(`---------- ${foundR.length} restaurant named ${foundR[0].name} at ${foundR[0].location} already in database ------ skipped`);
@@ -43,7 +199,8 @@ function saveYelpList(businesses, wcb){
 function getYelpData(urlArray, wcb) {
   console.log("Accessing Yelp Api...")
   var businesses = [];
-  async.each(urlArray, function(url, cb){
+
+  async.eachLimit(urlArray, 25, function(url, cb){
     rp(url, function(err, data){
       if(err) return cb(err);
       try {
@@ -70,10 +227,10 @@ function getOAuthSignature(wcb) {
       token_secret = process.env.YELP_TOKEN_SECRET,
       httpMethod   = "GET",
       baseUrl      = "https://api.yelp.com/v2/search",
-      offset        = 0,
       urlArray     = [];
 
-  while ( offset <= 980 ) {
+  var offset = 0;
+  while (offset <= 980) {
     var query_parameters = {
       location:        "Los+Angeles",
       category_filter: "restaurants",
@@ -101,6 +258,7 @@ function getOAuthSignature(wcb) {
   }
   wcb(null, urlArray);
 }
+
 
 
 async.waterfall([

@@ -14,25 +14,38 @@ require('../server');
 //multiple businesses in one location (i.e. strip mall)
 function saveFsqVenues(venues, wcb) {
   console.log("saving new venues...")
-  async.eachSeries(venues, function(venue, scb){
-    var loc = venue.location.address + " " + venue.location.city + " " + venue.location.state
+
+  var uniqVs = _.uniqBy(venues, 'location.lat', 'location.lng', 'name')
+
+  async.each(uniqVs, function(venue, cb){
+
+    var add = venue.location.address ? venue.location.address : null;
+    var city = venue.location.city ? venue.location.city : null;
+
+    var loc = add && city ? add + " " + city + " ca" : city ? city + " ca" : null
+    var lat = venue.location.lat ? venue.location.lat : null;
+    var lon = venue.location.lng ? venue.location.lng : null
+
     var newV = {
       name:       venue.name,
-      location:   loc.replace(/,/gmi, '').toLowerCase(),
+      location:   loc,
       category:   'Restaurant',
-      lat:        venue.location.lat,
-      lon:        venue.location.lng
+      lat:        lat,
+      lon:        lon
     }
-    Fsq_R.find({name: newV.name, location: newV.location}, function(err, foundV) {
-      if (err) return scb(err);
+
+    if ( ! ( newV.location || ( newV.lat && newV.lon ) ) ) return cb()
+
+    Fsq_R.find({name: newV.name, lat: newV.lat, lon: newV.lon}, function(err, foundV) {
+      if (err) return cb(err);
       if (foundV.length) {
         console.log(`---------- ${foundV.length} restaurant named ${foundV[0].name} at ${foundV[0].location} already in database ------ skipped`);
-        return scb();
+        return cb();
       }
       Fsq_R.create(newV, function(err, savedV){
         if(err) wcb(err);
-        console.log(`Saved FSQ Restaurant ${savedV.name} in FourSquare collection`)
-        scb()
+        console.log(`Saved FSQ Restaurant ${savedV.name} ${savedV.location} in FourSquare collection`)
+        cb()
       });
     })
   }, function(err){
@@ -69,13 +82,16 @@ function getFSQData(urls, wcb){
 //pass url to next function in waterfall
 function setQueryParams(ids, wcb) {
   console.log("creating query url array...");
-  var baseUri = "https://api.foursquare.com/v2/venues/search?near=Los%20Angeles%20CA&categoryId="
-  var client_id = "client_id=" + process.env.FS_ID;
-  var client_secret = "client_secret=" + process.env.FS_SECRET;
-  var v = "v=20160731";
+  var baseUri = "https://api.foursquare.com/v2/venues/search"
+  var near = "?near=Los%20Angeles%20CA";
+  var category = "&categoryId="
+  var client_id = "&client_id=" + process.env.FS_ID;
+  var client_secret = "&client_secret=" + process.env.FS_SECRET;
+  var v = "&v=20160731";
+  var query = "&query=restaurant"
   var urls = [];
   ids.forEach(function(id){
-    var url = baseUri + id + '&' + client_id + "&" + client_secret + "&" + v
+    var url = baseUri + near + category + id + client_id + client_secret + v + query
     urls.push(url);
   });
   wcb(null, urls);
@@ -88,7 +104,7 @@ function getCategories(wcb) {
   var client_secret = "client_secret=" + process.env.FS_SECRET;
   var v = "v=20160731";
   var url = baseUri + '&' + client_id + "&" + client_secret + "&" + v;
-  var categoryIds = []
+  var categoryIds = ["4d4b7105d754a06374d81259"]
 
   async.series([
     function(scb) {
