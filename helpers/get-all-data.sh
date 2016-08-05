@@ -8,6 +8,11 @@ yelp=$dir/get-yelp-data.js
 updatew3w=$dir/update-w3w-data.js
 hygiene=$dir/hygiene-data.js
 
+cwd=$pwd
+
+cd $dir
+cd ..
+
 echo "process beginning for foursquare data..."
 
 node $fsq
@@ -33,3 +38,5 @@ echo "creating hygiened list and saving in separate restaurants collection..."
 sleep 2
 
 node $hygiene
+
+cd $cwd
