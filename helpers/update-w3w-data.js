@@ -1,6 +1,5 @@
 var mongoose = require('../config/database')
-var Yelp_R = require("../models/yelp");
-var Fsq_R = require("../models/fsq");
+var Rt = require('../models/restaurant');
 var async = require('async');
 var rp = require('request-promise');
 require('../server');
@@ -37,16 +36,8 @@ function getW3ws(rs, wcb) {
   })
 }
 
-function getFsqList(list, wcb) {
-  Fsq_R.find({}, function(err, rs){
-    if(err) return wcb(err);
-    rs = rs.concat(list)
-    wcb(null, rs)
-  });
-}
-
-function getYelpList(wcb) {
-  Yelp_R.find({}, function(err, rs){
+function getList(wcb) {
+  Rt.find({}, function(err, rs){
     if(err) return wcb(err);
     wcb(null, rs);
   });
@@ -55,11 +46,7 @@ function getYelpList(wcb) {
 async.waterfall([
 
   function(wcb) {
-    getYelpList(wcb);
-  },
-
-  function(list, wcb) {
-    getFsqList(list, wcb);
+    getList(wcb);
   },
 
   function(list, wcb) {

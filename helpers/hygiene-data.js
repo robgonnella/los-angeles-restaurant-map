@@ -1,21 +1,31 @@
 var mongoose = require('../config/database')
-var Yelp_R = require('../models/yelp');
-var Fsq_R = require('../models/fsq');
+var Yelp_FS = require('../models/yelp-fs');
 var Rt = require('../models/restaurant');
 var _ = require('lodash');
 var async = require('async');
 require('../server');
 
-function hygienateData(list, wcb) {
+function hygienateData(yList, fList, wcb) {
 
-  list.forEach(function(l) {
+  yList.forEach(function(l) {
     var c = (/,/gmi).test(l.location);
     if ( c ) {
-      l.location = l.location.replace(/,/gmi, '').toLowerCase();
+      l.location = l.location.replace(/,/gmi, '')
     }
+    delete l._id
+    delete l.type
   });
 
-  var h_list = _.uniqBy(list, 'location', 'name');
+  fList.forEach(function(l) {
+    var c = (/,/gmi).test(l.location);
+    if ( c ) {
+      l.location = l.location.replace(/,/gmi, '')
+    }
+    delete l._id
+    delete l.type
+  });
+
+  var h_list = _.intersectionWith(ylist, fList, _.isEqual)
 
   console.log(`preparing to save ${h_list.length} restaurants in database...`)
 
@@ -25,8 +35,7 @@ function hygienateData(list, wcb) {
       location: r.location,
       category: r.category,
       lat:      r.lat,
-      lon:      r.lon,
-      w3w:      r.w3w
+      lon:      r.lon
     }
 
     Rt.find({name: newR.name, location: newR.location}, function(err, foundR) {
@@ -48,40 +57,42 @@ function hygienateData(list, wcb) {
   })
 }
 
-function getFsqList(list, wcb) {
-  var fsqList = [];
-  Fsq_R.find({}, function(err, rs) {
-    if(err) wcb(err);
-    fsqList = rs;
-    console.log("FSQ Length -->", fsqList.length)
-    var total = fsqList.concat(list)
-    console.log("TOTAL LENGTH -->", total.length)
-    wcb(null, total)
-  })
-}
+function getYelpFsList(wcb) {
+  var yList;
+  var fList;
+  async.parallel([
 
-function getYelpList(wcb) {
-  var yelpList = [];
-  Yelp_R.find({}, function(err, rs) {
-    if (err) wcb(err);
-    yelpList = rs;
-    console.log("Yelp Length -->", yelpList.length)
-    wcb(null, yelpList)
-  });
+    function (acb) {
+      Yelp_FS.find({type: 'yelp'}, function(err, rs) {
+        if (err) wcb(err);
+        yList = rs;
+        console.log("Yelp Length -->", yList.length)
+        acb()
+      });
+    },
+
+    function(acb) {
+      Yelp_FS.find({type: 'fsq'}, function(err, rs) {
+        if (err) wcb(err);
+        fList = rs;
+        console.log("FourSquare Length -->", fList.length)
+        acb();
+      });
+    }
+  ], function(err){
+    if (err) return wcb(err);
+    wcb(null, yList, fList)
+  })
 }
 
 async.waterfall([
 
   function(wcb) {
-    getYelpList(wcb)
+    getYelpFsList(wcb)
   },
 
-  function(list, wcb) {
-    getFsqList(list, wcb)
-  },
-
-  function(list, wcb) {
-    hygienateData(list, wcb);
+  function(yList, fList, wcb) {
+    hygienateData(yList, fList, wcb);
   }
 
 ], function(err, result) {

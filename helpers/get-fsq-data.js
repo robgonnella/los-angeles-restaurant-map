@@ -6,7 +6,7 @@ var oauthSignature = require('oauth-signature');
 var qs = require('querystring');
 var _ = require('lodash');
 var mongoose = require("../config/database")
-var Fsq_R = require("../models/fsq");
+var Yelp_FS = require("../models/yelp-fs");
 require('../server');
 
 //check if business exits in db first before saving
@@ -15,39 +15,37 @@ require('../server');
 function saveFsqVenues(venues, wcb) {
   console.log("saving new venues...")
 
-  var uniqVs = _.uniqBy(venues, 'location.lat', 'location.lng', 'name')
+  async.each(venues, function(venue, cb){
 
-  async.each(uniqVs, function(venue, cb){
-
-    var add = venue.location.address ? venue.location.address : null;
-    var city = venue.location.city ? venue.location.city : null;
+    var add = venue.location && venue.location.address ? venue.location.address : null;
+    var city = venue.location && venue.location.city ? venue.location.city : null;
 
     var loc = add && city ? add + " " + city + " ca" : city ? city + " ca" : null
-    var lat = venue.location.lat ? venue.location.lat : null;
-    var lon = venue.location.lng ? venue.location.lng : null
+    var lat = venue.location && venue.location.lat ? venue.location.lat : null;
+    var lon = venue.location && venue.location.lng ? venue.location.lng : null
 
     var newV = {
       name:       venue.name,
       location:   loc,
-      category:   'Restaurant',
+      category:   'restaurant',
+      type:       'fsq',
       lat:        lat,
       lon:        lon
     }
 
     if ( ! ( newV.location || ( newV.lat && newV.lon ) ) ) return cb()
 
-    Fsq_R.find({name: newV.name, lat: newV.lat, lon: newV.lon}, function(err, foundV) {
-      if (err) return cb(err);
-      if (foundV.length) {
-        console.log(`---------- ${foundV.length} restaurant named ${foundV[0].name} at ${foundV[0].location} already in database ------ skipped`);
-        return cb();
-      }
-      Fsq_R.create(newV, function(err, savedV){
-        if(err) wcb(err);
-        console.log(`Saved FSQ Restaurant ${savedV.name} ${savedV.location} in FourSquare collection`)
-        cb()
-      });
-    })
+    newV.name = newV.name ? newV.name.toLowerCase() : newV.name;
+    newV.location = newV.location ? newV.location.toLowerCase() : newV.location;
+    newV.lat = newV.lat ? newV.lat.toFixed(6) : newV.lat;
+    newV.lon = newV.lon ? newV.lon.toFixed(6) : newV.lon;
+
+    Yelp_FS.create(newV, function(err, savedV){
+      if(err) cb(err);
+      console.log(`Saved FSQ Restaurant ${savedV.name} ${savedV.location} in FourSquare collection`)
+      cb()
+    });
+
   }, function(err){
     if(err) return wcb(err)
     mongoose.disconnect();

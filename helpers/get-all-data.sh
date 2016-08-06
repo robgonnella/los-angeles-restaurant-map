@@ -27,16 +27,16 @@ node $yelp
 
 sleep 2
 
-echo "updating w3w info for all restaurants..."
-
-sleep 2
-
-node $updatew3w
-
 echo "creating hygiened list and saving in separate restaurants collection..."
 
 sleep 2
 
 node $hygiene
+
+echo "updating w3w info for all restaurants..."
+
+sleep 2
+
+node $updatew3w
 
 cd $cwd
