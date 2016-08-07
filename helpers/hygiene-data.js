@@ -5,31 +5,9 @@ var _ = require('lodash');
 var async = require('async');
 require('../server');
 
-function hygienateData(yList, fList, wcb) {
 
-  yList.forEach(function(l) {
-    var c = (/,/gmi).test(l.location);
-    if ( c ) {
-      l.location = l.location.replace(/,/gmi, '')
-    }
-    delete l._id
-    delete l.type
-  });
-
-  fList.forEach(function(l) {
-    var c = (/,/gmi).test(l.location);
-    if ( c ) {
-      l.location = l.location.replace(/,/gmi, '')
-    }
-    delete l._id
-    delete l.type
-  });
-
-  var h_list = _.intersectionWith(ylist, fList, _.isEqual)
-
-  console.log(`preparing to save ${h_list.length} restaurants in database...`)
-
-  async.each(h_list, function(r, cb) {
+function saveList(list_to_save, wcb) {
+  async.each(list_to_save, function(r, cb2) {
     var newR = {
       name:     r.name,
       location: r.location,
@@ -39,21 +17,40 @@ function hygienateData(yList, fList, wcb) {
     }
 
     Rt.find({name: newR.name, location: newR.location}, function(err, foundR) {
-      if(err) return cb(err);
+      if(err) return cb2(err);
       if(foundR.length) {
         console.log(`---------- ${foundR.length} restaurant with name ${foundR[0].name} at ${foundR[0].location} found in database already ---- skipped`)
-        return cb()
+        return cb2()
       }
       Rt.create(newR, function(err, savedR) {
-        if (err) return cb(err);
+        if (err) return cb2(err);
         console.log(`Saved restaurant ${savedR.name} ${savedR.location} in the hygienated Restaurant collection`);
-        cb();
+        cb2();
       })
     })
   }, function(err) {
     if(err) return wcb(err);
     wcb("successfully saved hygiened list in database")
     mongoose.disconnect();
+  })
+}
+
+function hygienateData(yList, fList, wcb) {
+
+  var list_to_save = []
+
+  async.each(fList, function(r, cb) {
+    var name = {$regex: `${r.name}`, $options: 'i'}
+    var loc = {$regex: `${r.location}`, $options: 'i'}
+    Yelp_FS.find({type: 'yelp', name: name, location: loc}, function(err, foundR) {
+      if (err) return cb(err);
+      if (foundR.length) list_to_save.push(foundR[0])
+      cb()
+    })
+  }, function(err){
+    if (err) return wcb(err);
+    console.log(`preparing to save ${list_to_save.length} restaurants in database...`)
+    wcb(null, list_to_save);
   })
 }
 
@@ -64,7 +61,7 @@ function getYelpFsList(wcb) {
 
     function (acb) {
       Yelp_FS.find({type: 'yelp'}, function(err, rs) {
-        if (err) wcb(err);
+        if (err) return acb(err);
         yList = rs;
         console.log("Yelp Length -->", yList.length)
         acb()
@@ -73,7 +70,7 @@ function getYelpFsList(wcb) {
 
     function(acb) {
       Yelp_FS.find({type: 'fsq'}, function(err, rs) {
-        if (err) wcb(err);
+        if (err) return acb(err);
         fList = rs;
         console.log("FourSquare Length -->", fList.length)
         acb();
@@ -81,7 +78,7 @@ function getYelpFsList(wcb) {
     }
   ], function(err){
     if (err) return wcb(err);
-    wcb(null, yList, fList)
+    wcb(null, yList, fList);
   })
 }
 
@@ -93,6 +90,10 @@ async.waterfall([
 
   function(yList, fList, wcb) {
     hygienateData(yList, fList, wcb);
+  },
+
+  function(list_to_save, wcb) {
+    saveList(list_to_save, wcb)
   }
 
 ], function(err, result) {

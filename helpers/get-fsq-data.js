@@ -7,6 +7,7 @@ var qs = require('querystring');
 var _ = require('lodash');
 var mongoose = require("../config/database")
 var Yelp_FS = require("../models/yelp-fs");
+var zipcodes = require('./zipcodes')
 require('../server');
 
 //check if business exits in db first before saving
@@ -15,7 +16,7 @@ require('../server');
 function saveFsqVenues(venues, wcb) {
   console.log("saving new venues...")
 
-  async.each(venues, function(venue, cb){
+  async.eachSeries(venues, function(venue, cb){
 
     var add = venue.location && venue.location.address ? venue.location.address : null;
     var city = venue.location && venue.location.city ? venue.location.city : null;
@@ -40,10 +41,17 @@ function saveFsqVenues(venues, wcb) {
     newV.lat = newV.lat ? newV.lat.toFixed(6) : newV.lat;
     newV.lon = newV.lon ? newV.lon.toFixed(6) : newV.lon;
 
-    Yelp_FS.create(newV, function(err, savedV){
-      if(err) cb(err);
-      console.log(`Saved FSQ Restaurant ${savedV.name} ${savedV.location} in FourSquare collection`)
-      cb()
+    Yelp_FS.find({type: 'fsq', name: newV.name, location: newV.location}, function(err, foundV) {
+      if(err) return cb(err)
+      if(foundV.length) {
+        console.log(`${foundV.length} restaurant named ${foundV[0].name} at ${foundV[0].location} found in database ----- skipped ----- Type: ${foundV[0].type}`);
+        return cb()
+      }
+      Yelp_FS.create(newV, function(err, savedV){
+        if(err) cb(err);
+        console.log(`Saved FSQ Restaurant ${savedV.name} ${savedV.location} in yelp / foursquare collection`)
+        cb()
+      });
     });
 
   }, function(err){
@@ -64,7 +72,7 @@ function getFSQData(urls, wcb){
       try {
         data = JSON.parse(data.body)
       } catch(e) {
-        console.log(e.stack)
+        console.log("Error Stack -->",e.stack)
       }
       venues = venues.concat(data.response.venues)
       cb()
@@ -78,60 +86,32 @@ function getFSQData(urls, wcb){
 
 //set up url query parameters
 //pass url to next function in waterfall
-function setQueryParams(ids, wcb) {
+function setQueryParams(wcb) {
+
   console.log("creating query url array...");
   var baseUri = "https://api.foursquare.com/v2/venues/search"
-  var near = "?near=Los%20Angeles%20CA";
-  var category = "&categoryId="
+  var near = "?near=";
+  // var category = "&categoryId="
   var client_id = "&client_id=" + process.env.FS_ID;
   var client_secret = "&client_secret=" + process.env.FS_SECRET;
   var v = "&v=20160731";
   var query = "&query=restaurant"
   var urls = [];
-  ids.forEach(function(id){
-    var url = baseUri + near + category + id + client_id + client_secret + v + query
+
+  async.each(zipcodes, function(zip, cb) {
+    var url = baseUri + near + zip + client_id + client_secret + v + query
     urls.push(url);
-  });
-  wcb(null, urls);
-}
-
-function getCategories(wcb) {
-  console.log("getting category ids...")
-  var baseUri = "https://api.foursquare.com/v2/venues/categories?"
-  var client_id = "client_id=" + process.env.FS_ID;
-  var client_secret = "client_secret=" + process.env.FS_SECRET;
-  var v = "v=20160731";
-  var url = baseUri + '&' + client_id + "&" + client_secret + "&" + v;
-  var categoryIds = ["4d4b7105d754a06374d81259"]
-
-  async.series([
-    function(scb) {
-      rp(url, function(err, data) {
-        if(err) return wcb(err);
-        var cats = JSON.parse(data.body).response.categories
-        cats = cats.filter(function(cat){
-          return cat.id === '4d4b7105d754a06374d81259'
-        });
-        cats[0].categories.forEach(function(cat){
-          categoryIds.push(cat.id)
-        });
-        scb()
-      });
-    }
-  ], function(err){
-    if(err) return wcb(err);
-    wcb(null, categoryIds)
+    cb();
+  }, function(err) {
+    if (err) return wcb(err);
+    wcb(null, urls);
   });
 }
 
 async.waterfall([
 
   function(wcb) {
-    getCategories(wcb);
-  },
-
-  function(ids, wcb) {
-    setQueryParams(ids, wcb);
+    setQueryParams(wcb);
   },
 
   function(urls, wcb) {

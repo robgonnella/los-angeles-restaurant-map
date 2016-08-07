@@ -12,6 +12,6 @@ var yelpFsRSchema = mongoose.Schema({
   w3w:          String
 })
 
-var Yelp_FS = mongoose.model("Yelp_R", yelpFsRSchema);
+var Yelp_FS = mongoose.model("Yelp_FS", yelpFsRSchema);
 
 module.exports = Yelp_FS;

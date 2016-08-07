@@ -5,153 +5,9 @@ var oauthSignature = require('oauth-signature');
 var qs = require('querystring');
 var _ = require('lodash');
 var mongoose = require('../config/database')
-var Yelp_R = require("../models/yelp-fs")
+var Yelp_FS = require("../models/yelp-fs")
 var app = require('../server');
-
-var la_neighborhoods = [
-"Adams Normandie",
-"Alhambra",
-"Arleta",
-"Arlington Heights",
-"Arts District",
-"Athens",
-"Atwater Village",
-"Baldwin Hills/Crenshaw",
-"Bel Air",
-"Beverly Crest",
-"Beverly Grove",
-"Beverly Hills",
-"Beverlywood",
-"Boyle Heights",
-"Brentwood",
-"Broadway-Manchester",
-"Burbank",
-"Canoga Park",
-"Carthay",
-"Central Alameda",
-"Century City",
-"Chatsworth",
-"Chesterfield Square",
-"Cheviot Hills",
-"Chinatown",
-"Culver City",
-"Cypress Park",
-"Del Rey",
-"Downtown",
-"Eagle Rock",
-"East Hollywood",
-"East Los Angeles",
-"Echo Park",
-"El Segundo",
-"El Sereno",
-"Elysian Park",
-"Encino",
-"Exposition Park",
-"Fairfax",
-"Florence",
-"Florence-Firestone",
-"Glassell Park",
-"Glendale",
-"Gramercy Park",
-"Granada Hills",
-"Green Meadows",
-"Griffith Park",
-"Hancock Park",
-"Harbor City",
-"Harbor Gateway",
-"Harvard Heights",
-"Harvard Park",
-"Hermosa Beach",
-"Highland Park",
-"Historic South Central",
-"Hollywood",
-"Hollywood Hills",
-"Hollywood Hills West",
-"Huntington Park",
-"Hyde Park",
-"Jefferson Park",
-"Koreatown",
-"Ladera Heights",
-"Lake Balboa",
-"Lake View Terrace",
-"Larchmont",
-"Leimert Park",
-"Lincoln Heights",
-"Little Tokyo",
-"Los Feliz",
-"Manchester Square",
-"Manhattan Beach",
-"Mar Vista",
-"Marina del Rey",
-"Mid-City",
-"Mid-Wilshire",
-"Mission Hills",
-"Montecito Heights",
-"Mount Washington",
-"North Hills",
-"North Hollywood",
-"Northridge",
-"Pacific Palisades",
-"Pacoima",
-"Palms",
-"Panorama City",
-"Pasadena",
-"Pico-Robertson",
-"Pico-Union",
-"Playa Vista",
-"Playa del Rey",
-"Porter Ranch",
-"Rancho Park",
-"Redondo Beach",
-"Reseda",
-"San Fernando",
-"San Pedro",
-"Santa Monica",
-"Sawtelle",
-"Sepulveda Basin",
-"Shadow Hills",
-"Sherman Oaks",
-"Silver Lake",
-"South Park",
-"South Pasadena",
-"Studio City",
-"Sun Valley",
-"Sunland",
-"Sylmar",
-"Tarzana",
-"Terminal Island",
-"Toluca Lake",
-"Torrance",
-"Tujunga",
-"UCLA",
-"Universal City",
-"University Park",
-"Valley Glen",
-"Valley Village",
-"Van Nuys",
-"Venice",
-"Vermont Knolls",
-"Vermont Square",
-"Vermont Vista",
-"Vermont-Slauson",
-"Vernon",
-"View Park/Windsor Hills",
-"Walnut Park",
-"Watts",
-"West Adams",
-"West Hills",
-"West Hollywood",
-"West Los Angeles",
-"Westchester",
-"Westlake",
-"Westmont",
-"Westwood",
-"Wilmington",
-"Wilshire Center",
-"Windsor Square",
-"Winnetka",
-"Woodland Hills"
-]
+var zipcodes = require('./zipcodes')
 
 //check if business exits in db first before saving
 //allow different names at same location to account for
@@ -160,9 +16,12 @@ function saveYelpList(businesses, wcb){
 
   console.log('saving yelp businesses')
 
-  async.each(businesses, function(business, cb){
+  async.eachSeries(businesses, function(business, cb){
 
-    var loc = business.location.display_address ? business.location.display_address.join(' ') : null;
+    var add = business.location.address.length ? business.location.address[0].toLowerCase() : null;
+    var city = business.location.city ? business.location.city.toLowerCase() : null;
+
+    var loc = add && city ? add + ' ' + city + ' ca' : city ? city + ' ca' : null;
     var lat = business.location.coordinate && business.location.coordinate.latitude ? business.location.coordinate.latitude : null;
     var lon = business.location.coordinate && business.location.coordinate.longitude ? business.location.coordinate.longitude : null;
 
@@ -182,13 +41,23 @@ function saveYelpList(businesses, wcb){
     newR.lat = newR.lat ? newR.lat.toFixed(6) : newR.lat;
     newR.lon = newR.lon ? newR.lon.toFixed(6) : newR.lon;
 
+    if ( newR.location ) {
+      var c = /,/gmi.test(newR.location);
+      newR.location = c ? newR.location.replace(/,/gmi, '') : newR.location
+    }
 
-    Yelp_R.create(newR, function(err, savedRest){
+    Yelp_FS.find({type: 'yelp', name: newR.name, location: newR.location}, function(err, foundR) {
       if(err) return cb(err)
-      console.log(`Saved Yelp Restaurant ${savedRest.name} in the Yelp collection`);
-      cb()
-    });
-
+      if(foundR.length) {
+        console.log(`${foundR.length} restaurant named ${foundR[0].name} at ${foundR[0].location} found in database ----- skipped ----- Type: ${foundR[0].type}`);
+        return cb()
+      }
+      Yelp_FS.create(newR, function(err, savedRest){
+        if(err) return cb(err)
+        console.log(`Saved Yelp Restaurant ${savedRest.name} in the yelp / foursquare collection`);
+        cb()
+      });
+    })
   }, function(err){
     if(err) return wcb(err)
     wcb(null, "process complete!")
@@ -201,13 +70,14 @@ function getYelpData(urlArray, wcb) {
   console.log("Accessing Yelp Api...")
   var businesses = [];
 
-  async.eachLimit(urlArray, 25, function(url, cb){
+  console.log(`Making ${urlArray.length} requests to Yelp API 20 at a time`)
+  async.eachLimit(urlArray, 20, function(url, cb){
     rp(url, function(err, data){
       if(err) return cb(err);
       try {
         data = JSON.parse(data.body)
       } catch(e){
-        console.log(e.stack)
+        console.log("Error Stack -->",e.stack)
       }
       businesses = businesses.concat(data.businesses);
       cb()
@@ -221,7 +91,7 @@ function getYelpData(urlArray, wcb) {
 
 //get OAuth signature and set up url query paramenters
 //pass url to next function in waterfall
-function getOAuthSignature(wcb) {
+function getOAuthUrls(wcb) {
   var key      = process.env.YELP_CONSUMER_KEY,
       secret       = process.env.YELP_CONSUMER_SECRET,
       token        = process.env.YELP_TOKEN,
@@ -231,11 +101,12 @@ function getOAuthSignature(wcb) {
       urlArray     = [];
 
 
-  async.each(la_neighborhoods, function(nb, cb){
+  console.log("creating array of oauth urls with zipcode locations")
+  async.each(zipcodes, function(zip, cb){
     var offset = 0;
     while (offset <= 150) {
       var query_parameters = {
-        location:        nb.replace(/\s/gmi, '+')+"+CA",
+        location:        zip,
         category_filter: "restaurants",
         offset:          offset.toString(),
         limit:           '20'
@@ -269,7 +140,7 @@ function getOAuthSignature(wcb) {
 async.waterfall([
 
   function(wcb) {
-    getOAuthSignature(wcb);
+    getOAuthUrls(wcb);
   },
 
   function(apiUrl, wcb) {
