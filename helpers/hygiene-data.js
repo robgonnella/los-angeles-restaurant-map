@@ -14,10 +14,11 @@ function saveList(totalList, wcb) {
       category: r.category,
       type:     r.type,
       lat:      r.lat,
-      lon:      r.lon
+      lon:      r.lon,
+      w3w:      r.w3w
     }
 
-    Rt.find({name: newR.name, location: newR.location}, function(err, foundR) {
+    Rt.find({name: newR.name, w3w: newR.w3w}, function(err, foundR) {
       if(err) return cb(err);
       if(foundR.length) {
         console.log(`---------- ${foundR.length} restaurant with name ${foundR[0].name} at ${foundR[0].location} found in database already ---- skipped`)

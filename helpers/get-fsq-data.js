@@ -38,9 +38,6 @@ function saveFsqVenues(venues, wcb) {
 
     if ( ! ( newV.location || ( newV.lat && newV.lon ) ) ) return cb()
 
-    newV.lat = newV.lat ? newV.lat.toFixed(6) : newV.lat;
-    newV.lon = newV.lon ? newV.lon.toFixed(6) : newV.lon;
-
     if ( newV.location ) {
       var c = /,/gmi.test(newV.location);
       var a = /\b'/gmi.test(newV.location)

@@ -38,9 +38,6 @@ function saveYelpList(businesses, wcb){
 
     if( ! ( newR.location || ( newR.lat && newR.lon ) ) ) return cb();
 
-    newR.lat = newR.lat ? newR.lat.toFixed(6) : newR.lat;
-    newR.lon = newR.lon ? newR.lon.toFixed(6) : newR.lon;
-
     if ( newR.location ) {
       var c = /,/gmi.test(newR.location);
       var a = /\b'/gmi.test(newR.location)
