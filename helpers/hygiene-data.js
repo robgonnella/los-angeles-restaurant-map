@@ -6,26 +6,27 @@ var async = require('async');
 require('../server');
 
 
-function saveList(list_to_save, wcb) {
-  async.each(list_to_save, function(r, cb2) {
+function saveList(totalList, wcb) {
+  async.eachSeries(totalList, function(r, cb) {
     var newR = {
       name:     r.name,
       location: r.location,
       category: r.category,
+      type:     r.type,
       lat:      r.lat,
       lon:      r.lon
     }
 
     Rt.find({name: newR.name, location: newR.location}, function(err, foundR) {
-      if(err) return cb2(err);
+      if(err) return cb(err);
       if(foundR.length) {
         console.log(`---------- ${foundR.length} restaurant with name ${foundR[0].name} at ${foundR[0].location} found in database already ---- skipped`)
-        return cb2()
+        return cb()
       }
       Rt.create(newR, function(err, savedR) {
-        if (err) return cb2(err);
+        if (err) return cb(err);
         console.log(`Saved restaurant ${savedR.name} ${savedR.location} in the hygienated Restaurant collection`);
-        cb2();
+        cb();
       })
     })
   }, function(err) {
@@ -35,51 +36,17 @@ function saveList(list_to_save, wcb) {
   })
 }
 
-function hygienateData(yList, fList, wcb) {
-
-  var list_to_save = []
-
-  async.each(fList, function(r, cb) {
-    var name = {$regex: `${r.name}`, $options: 'i'}
-    var loc = {$regex: `${r.location}`, $options: 'i'}
-    Yelp_FS.find({type: 'yelp', name: name, location: loc}, function(err, foundR) {
-      if (err) return cb(err);
-      if (foundR.length) list_to_save.push(foundR[0])
-      cb()
-    })
-  }, function(err){
-    if (err) return wcb(err);
-    console.log(`preparing to save ${list_to_save.length} restaurants in database...`)
-    wcb(null, list_to_save);
-  })
-}
 
 function getYelpFsList(wcb) {
-  var yList;
-  var fList;
-  async.parallel([
+  var totalList;
 
-    function (acb) {
-      Yelp_FS.find({type: 'yelp'}, function(err, rs) {
-        if (err) return acb(err);
-        yList = rs;
-        console.log("Yelp Length -->", yList.length)
-        acb()
-      });
-    },
-
-    function(acb) {
-      Yelp_FS.find({type: 'fsq'}, function(err, rs) {
-        if (err) return acb(err);
-        fList = rs;
-        console.log("FourSquare Length -->", fList.length)
-        acb();
-      });
-    }
-  ], function(err){
+  Yelp_FS.find({}, function(err, rs) {
     if (err) return wcb(err);
-    wcb(null, yList, fList);
-  })
+    totalList = rs;
+    console.log("Total List Length -->", totalList.length)
+    wcb(null, totalList);
+  });
+
 }
 
 async.waterfall([
@@ -88,12 +55,8 @@ async.waterfall([
     getYelpFsList(wcb)
   },
 
-  function(yList, fList, wcb) {
-    hygienateData(yList, fList, wcb);
-  },
-
-  function(list_to_save, wcb) {
-    saveList(list_to_save, wcb)
+  function(totalList, wcb) {
+    saveList(totalList, wcb)
   }
 
 ], function(err, result) {

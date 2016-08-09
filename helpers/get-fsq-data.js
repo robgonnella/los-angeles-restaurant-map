@@ -18,15 +18,17 @@ function saveFsqVenues(venues, wcb) {
 
   async.eachSeries(venues, function(venue, cb){
 
-    var add = venue.location && venue.location.address ? venue.location.address : null;
-    var city = venue.location && venue.location.city ? venue.location.city : null;
+    var add = venue.location && venue.location.address ? venue.location.address.toLowerCase().trim() : null;
+    var city = venue.location && venue.location.city ? venue.location.city.toLowerCase().trim() : null;
 
     var loc = add && city ? add + " " + city + " ca" : city ? city + " ca" : null
     var lat = venue.location && venue.location.lat ? venue.location.lat : null;
     var lon = venue.location && venue.location.lng ? venue.location.lng : null
 
+    var name = venue.name ? venue.name.toLowerCase().trim() : null;
+
     var newV = {
-      name:       venue.name,
+      name:       name,
       location:   loc,
       category:   'restaurant',
       type:       'fsq',
@@ -36,10 +38,16 @@ function saveFsqVenues(venues, wcb) {
 
     if ( ! ( newV.location || ( newV.lat && newV.lon ) ) ) return cb()
 
-    newV.name = newV.name ? newV.name.toLowerCase() : newV.name;
-    newV.location = newV.location ? newV.location.toLowerCase() : newV.location;
     newV.lat = newV.lat ? newV.lat.toFixed(6) : newV.lat;
     newV.lon = newV.lon ? newV.lon.toFixed(6) : newV.lon;
+
+    if ( newV.location ) {
+      var c = /,/gmi.test(newV.location);
+      var a = /\b'/gmi.test(newV.location)
+      newV.location = c ? newV.location.replace(/,/gmi, '') : newV.location
+      newV.location = a ? newV.location.replace(/\b'/gmi, '') : newV.location
+
+    }
 
     Yelp_FS.find({type: 'fsq', name: newV.name, location: newV.location}, function(err, foundV) {
       if(err) return cb(err)

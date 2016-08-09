@@ -18,15 +18,17 @@ function saveYelpList(businesses, wcb){
 
   async.eachSeries(businesses, function(business, cb){
 
-    var add = business.location.address.length ? business.location.address[0].toLowerCase() : null;
-    var city = business.location.city ? business.location.city.toLowerCase() : null;
+    var add = business.location.address.length ? business.location.address[0].toLowerCase().trim() : null;
+    var city = business.location.city ? business.location.city.toLowerCase().trim() : null;
 
     var loc = add && city ? add + ' ' + city + ' ca' : city ? city + ' ca' : null;
     var lat = business.location.coordinate && business.location.coordinate.latitude ? business.location.coordinate.latitude : null;
     var lon = business.location.coordinate && business.location.coordinate.longitude ? business.location.coordinate.longitude : null;
 
+    var name = business.name ? business.name.toLowerCase().trim() : null;
+
     var newR = {
-      name:      business.name,
+      name:      name,
       location:  loc,
       category:  'restaurant',
       type:      'yelp',
@@ -36,14 +38,14 @@ function saveYelpList(businesses, wcb){
 
     if( ! ( newR.location || ( newR.lat && newR.lon ) ) ) return cb();
 
-    newR.name = newR.name ? newR.name.toLowerCase() : newR.name;
-    newR.location = newR.location ? newR.location.toLowerCase() : newR.location;
     newR.lat = newR.lat ? newR.lat.toFixed(6) : newR.lat;
     newR.lon = newR.lon ? newR.lon.toFixed(6) : newR.lon;
 
     if ( newR.location ) {
       var c = /,/gmi.test(newR.location);
+      var a = /\b'/gmi.test(newR.location)
       newR.location = c ? newR.location.replace(/,/gmi, '') : newR.location
+      newR.location = a ? newR.location.replace(/\b'/gmi, '') : newR.location
     }
 
     Yelp_FS.find({type: 'yelp', name: newR.name, location: newR.location}, function(err, foundR) {
