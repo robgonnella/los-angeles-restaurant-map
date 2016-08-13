@@ -1,17 +1,17 @@
-# Yelp FourSquare API Example APP
+# A MAP OF ALL THE RESTAURANTS IN LOS ANGELES!
 
 
 ### Objective:
 
-* Use Yelp API to get a list of Restaurants in Los Angeles area and save in Yelp Collection
+* Use Yelp API to get a list of Restaurants in Los Angeles area and save in Collection - no duplicates
 
-* Use FourSquare API for additional Restaurants in Los Angeles and save in FourSquare Collection
+* Use FourSquare API for additional Restaurants in Los Angeles and save in same Collection - no duplicates
 
-* Use What 3 Words API to update a w3w field for all records in both yelp and foursquare collections
+* Use What 3 Words API with LAT LNG info to update a w3w field for all records in from both yelp and foursquare - then access What 3 Words again this time sending back three word phrase to homogenize lattitude and longitude for all records
 
 * Reconsile the two lists so there are no duplicates and save in a separate collection called Reatuarants
 
-* Create and expose API for app that allowes user to change the category
+* Display all restaurants as markers on a map using Google Maps API
 
 ### Instructions
 
@@ -30,35 +30,16 @@ list of helper scripts:
 * hygiene-data.js
 ```
 
-##API
-
-```
-GET    /api/restaurants    --> index (all restaurants)
-POST   /api/restaurants    --> create
-PUT    /api/restaurant/:id --> update
-DELETE /api/restaurant/:id --> destroy
-```
 ##Logic
 
-Use of the async library along with Yelps offset and limit parameters is used to paginate through all Yelps listings. Location and category_filter parameters are set to Los Angeles and Restaurants respectively.
+Use of the async library, Yelps offset and limit parameters, and a list of all zipcodes in Los Angeles are used create a set of signed urls to make requests to the YELP API. Location and category_filter parameters are set to Los Angeles and Restaurants respectively.
 
-(right now it is not set to go throught all pages as I was afraid I'd go over the allowed number of requests)
+FourSquare requests have been created by again using a list of Los Angeles zipcodes along with a query parameter set to 'restaurant' and near parameter set to Los Angeles to create a set of urls for requests.
 
-FourSquare requests have been created by first creating a list of sub-category IDs for anything in the food category and then made requests for venues for each of those categories in Los Angeles using the "near" parameter
+After data is obtained from yelp and foursquare requests to the What 3 Words API are made to populate the w3w using reverse geocode and then again using forward geocode to homogenize latitude and longitude across the list
 
-After data is obtained from yelp and foursquare requests to the What 3 Words API are made to populate the w3w using reverse geocode
+The database is synchronously checked for name and location matches before a record is saved in any collection
 
-Lodash uniqBy is used to create the unique list. The app then checks the database to see if the restaurant already exists in the database and saving only if it doesn't.
-
-To check if the resturant already exists in the db, I used location and name attributes. This allows different companies to have the same location (i.e. strip mall).
-
-##Front End
-
-The UI is created using angularJS and Bootstrap
-
-Users Can Create, Edit, and Destroy restaurants
-
-Request are made using the $http service
 
 ##Bugs and Missing Features
 
