@@ -5,24 +5,22 @@
   <meta charset="UTF-8">
   <title>Document</title>
   <link rel="stylesheet" href="./css/style.css">
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 
 
 <body ng-controller="MainController as vm">
-  <div id="map">
-    <!-- <ui-gmap-google-map center="map.center" zoom="map.zoom" options="options">
-      <ui-gmap-markers models='vm.markers'></ui-gmap-markers>
-    </ui-gmap-google-map> -->
-  </div>
-  <script src="/scripts/jquery/jquery.min.js"></script>
-  <script src="/scripts/lodash/lodash.min.js"></script>
+  <div id="map"></div>
+  <!-- <script src="/scripts/jquery/jquery.min.js"></script> -->
+  <!-- <script src="/scripts/lodash/lodash.min.js"></script> -->
   <script src="/scripts/angular/angular.min.js"></script>
-  <script src="/scripts/simple-logger/angular-simple-logger.min.js"></script>
-  <script src="/scripts/maps/angular-google-maps.min.js"></script>
+  <!-- <script src="/scripts/simple-logger/angular-simple-logger.min.js"></script>
+  <script src="/scripts/maps/angular-google-maps.min.js"></script> -->
   <script src="/js/app/main.module.js"></script>
   <script src="/js/app/main.config.js"></script>
   <script src="/js/app/main.controller.js"></script>
-  <!-- <script async defer src="https://maps.googleapis.com/maps/api/js"></script> -->
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 </body>
 
 </html>

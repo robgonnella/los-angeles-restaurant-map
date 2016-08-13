@@ -27,12 +27,12 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, 'public')));
-app.use('/scripts/jquery', express.static(__dirname + '/node_modules/jquery/dist'))
-app.use('/scripts/lodash', express.static(__dirname + '/node_modules/lodash'))
-app.use('/scripts/angular', express.static(__dirname + '/node_modules/angular'))
-app.use('/scripts/simple-logger', express.static(__dirname + '/node_modules/angular-simple-logger/dist'))
-app.use('/scripts/maps', express.static(__dirname + '/node_modules/angular-google-maps/dist'))
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/scripts/jquery', express.static(path.join(__dirname, '/node_modules/jquery/dist')))
+app.use('/scripts/lodash', express.static(path.join(__dirname, '/node_modules/lodash')))
+app.use('/scripts/angular', express.static(path.join(__dirname, '/node_modules/angular')))
+app.use('/scripts/simple-logger', express.static(path.join(__dirname, '/node_modules/angular-simple-logger/dist')))
+app.use('/scripts/maps', express.static(path.join(__dirname, '/node_modules/angular-google-maps/dist')))
 
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin',  '*');
