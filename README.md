@@ -1,4 +1,6 @@
-# A MAP OF ALL THE RESTAURANTS IN LOS ANGELES!
+# A MAP OF ALL RESTAURANTS IN LOS ANGELES!
+
+![](https://i.imgur.com/WERCw2a.png)
 
 
 ### Objective:
