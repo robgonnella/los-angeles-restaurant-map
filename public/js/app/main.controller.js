@@ -52,7 +52,7 @@
           title: r.name
         })
         marker.addListener('click', function() {
-          inforWindow.content = createContent(r)
+          infoWindow.content = createContent(r)
           marker['infoWindow'] = infoWindow;
           this['infoWindow'].open(map, this)
         });
