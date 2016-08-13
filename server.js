@@ -16,6 +16,7 @@ var app = express();
 app.set('title', env.title);
 app.set('safe-title', env.safe_title);
 app.locals.title = app.get('title');
+app.locals._ = require('lodash');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

@@ -5,9 +5,9 @@
     .module('la-restaurant-map')
     .controller('MainController', MainController);
 
-  MainController.$inject = ['$http'];
+  MainController.$inject = ['$http', '$window'];
 
-  function MainController($http){
+  function MainController($http, $window){
     var vm = this;
 
     getRestaurants()
@@ -24,10 +24,17 @@
     }
 
     function initMap() {
+      // $window.navigator.geolocation.getCurrentPosition(function(position) {
+      //   var map = new google.maps.Map(document.getElementById('map'), {
+      //     center: {lat: position.coords.latitude, lng: position.coords.longitude},
+      //     zoom: 18
+      //   });
+      // });
       var map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 34.052235, lng: -118.243683},
         zoom: 12
       });
+
       vm.restaurants.forEach(function(r) {
         var marker = new google.maps.Marker({
           position: {lat: r.lat, lng: r.lon},
