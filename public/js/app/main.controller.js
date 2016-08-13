@@ -23,18 +23,18 @@
       })
     }
 
-    function openInfoWindow(infoWindow) {
+    function openInfoWindow(infoWindow, marker, map) {
       infoWindow.open(map, marker);
     }
 
-    function createContentString(restaurant, infoWindow, map) {
+    function createContentString(restaurant, infoWindow, marker, map) {
       var contentString = `<div id='info-window'>
       <p> Name: ${restaurant.name} </p>
       <p> Location: ${restaurant.location} </p>
       </div>`
 
       infoWindow.content = contentString;
-      openInfoWindow(infoWindow, map)
+      openInfoWindow(infoWindow, marker, map)
 
     }
 
@@ -59,7 +59,7 @@
           title: r.name
         })
         marker.addListener('click', function() {
-          createContentString(r, infoWindow, map)
+          createContentString(r, infoWindow, marker, map)
         });
       })
     }
