@@ -50,7 +50,7 @@
           title: r.name
         })
         marker.addListener('click', function() {
-          inforWindow.content = createContent(r)
+          infoWindow.setContent(createContent(r))
           console.log("InfoWindow Content -->", infoWindow.content)
           console.log("Info Window Content Type -->", typeof infoWindow.content)
           infoWindow.open(map, marker)
