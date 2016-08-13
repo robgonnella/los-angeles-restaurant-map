@@ -10,6 +10,10 @@
   function MainController($http, $window){
     var vm = this;
 
+    vm.infoWindow = new google.maps.InfoWindow({
+      content: ''
+    });
+
     getRestaurants()
 
     function getRestaurants(){
@@ -27,20 +31,15 @@
       infoWindow.open(map, marker);
     }
 
-    function createInfoWindow(contentString) {
-      var infowindow = new google.maps.InfoWindow({
-        content: contentString
-      });
-      openInfoWindow(infoWindow)
-    }
-
     function createContentString(restaurant) {
       var contentString = `<div id='info-window'>
       <p> Name: ${restaurant.name} </p>
       <p> Location: ${restaurant.location} </p>
       </div>`
 
-      createInfoWindow(contentString)
+      vm.infoWindow.content = contentString;
+      openInfoWindow(vm.infoWindow)
+
     }
 
     function initMap() {
