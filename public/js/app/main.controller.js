@@ -28,15 +28,12 @@
     }
 
     function createContentString(restaurant, infoWindow, marker, map) {
-      var contentString = `<div id='info-window'>
-      <p> Name: ${restaurant.name} </p>
-      <p> Location: ${restaurant.location} </p>
-      </div>`
+      var contentString = `<div id='info-window'> <p> Name: ${restaurant.name} </p> <p> Location: ${restaurant.location} </p> </div>`
 
       infoWindow.content = contentString;
 
-      console.log(infoWindow)
-      
+      console.log(infoWindow.content)
+
       openInfoWindow(infoWindow, marker, map)
 
     }
