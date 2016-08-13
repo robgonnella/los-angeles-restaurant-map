@@ -48,7 +48,7 @@
         var marker = new google.maps.Marker({
           position: {lat: r.lat, lng: r.lon},
           map: map,
-          icon: './assets/taco-icon.png'
+          icon: './assets/taco-icon.png',
           title: r.name
         })
         marker.addListener('click', function() {
