@@ -25,9 +25,7 @@
 
     function createContent(restaurant, cb) {
       var contentString = `<div id='info-window'> <p> Name: ${restaurant.name} </p> <p> Location: ${restaurant.location} </p> </div>`
-
-      cb(contentString);
-
+      cb(contentString)
     }
 
     function initMap() {
@@ -51,8 +49,9 @@
           title: r.name
         })
         marker.addListener('click', function() {
-          infoWindow.content = createContent(r, function(infoWindow) {
-            infoWindow.open(map, marker);
+          createContent(r, function(content) {
+            infoWindow.content = content;
+            infoWindow.open(map, marker)
           })
         });
       })
