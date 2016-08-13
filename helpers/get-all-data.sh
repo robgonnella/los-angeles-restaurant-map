@@ -3,10 +3,10 @@
 
 dir=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
 
-fsq=$dir/get-fsq-data.js
-yelp=$dir/get-yelp-data.js
-updatew3w=$dir/update-w3w-data.js
-hygiene=$dir/hygiene-data.js
+fsq="./helpers/get-fsq-data.js"
+yelp="./helpers/get-yelp-data.js"
+updatew3w="./helpers/update-w3w-data.js"
+hygiene="./helpers/hygiene-data.js"
 
 cwd=$pwd
 
