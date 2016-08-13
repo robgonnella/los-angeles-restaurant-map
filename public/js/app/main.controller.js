@@ -23,18 +23,20 @@
       })
     }
 
-    function createInfoWindow(restaurant) {
+    function createInfoWindow(contentString) {
+      var infowindow = new google.maps.InfoWindow({
+        content: contentString
+      });
+      return infowindow;
+    }
 
+    function createContentString(restaurant) {
       var contentString = `<div id='info-window'>
       <p> Name: ${restaurant.name} </p>
       <p> Location: ${restaurant.location} </p>
       </div>`
 
-      var infowindow = new google.maps.InfoWindow({
-        content: contentString
-      });
-
-      return infowindow;
+      return contentString
     }
 
     function initMap() {
@@ -54,15 +56,11 @@
           map: map,
           title: r.name
         })
+        var contentString = createContentString(r)
+        var infoWindow = createInfoWindow(contentString)
         marker.addListener('click', function() {
-          vm.contentString = r.name
-          infowindow.open(map, marker);
+          infoWindow.open(map, marker);
         });
-        var infowindow = createInfoWindow();
-        marker.addListener('click', function() {
-          infowindow.open(map, marker);
-        });
-
       })
     }
 
