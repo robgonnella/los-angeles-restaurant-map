@@ -23,12 +23,10 @@
       })
     }
 
-    function createContent(restaurant, infoWindow, cb) {
+    function createContent(restaurant) {
       var contentString = `<div id='info-window'> <p> Name: ${restaurant.name} </p> <p> Location: ${restaurant.location} </p> </div>`
 
-      infoWindow.content = contentString;
-
-      cb(infoWindow);
+      return contentString;
 
     }
 
@@ -53,9 +51,8 @@
           title: r.name
         })
         marker.addListener('click', function() {
-          createContent(r, infoWindow, function cb(infoWindow){
-            infoWindow.open(map, marker);
-          })
+          infoWindow.content = createContent(r)
+          infoWindow.open(map, marker)
         });
       })
     }
