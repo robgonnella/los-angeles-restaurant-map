@@ -47,9 +47,11 @@
 
       var icon = {
         url: './assets/taco-icon.png',
-        size: new google.maps.Size(20,32)
+        size: new google.maps.Size(20,32),
+        origin: new google.maps.Point(0,0),
+        anchor: new google.maps.Point(0, 0)
       }
-      
+
       vm.restaurants.forEach(function(r) {
         var marker = new google.maps.Marker({
           position: {lat: r.lat, lng: r.lon},
