@@ -23,12 +23,13 @@
       })
     }
 
-    function createContent(restaurant, cb) {
-      var contentString = `<div id='info-window'> <p> Name: ${restaurant.name} </p> <p> Location: ${restaurant.location} </p> </div>`
-      cb(contentString)
+    function createContent(restaurant) {
+      var html = `<div id='info-window'> <p> Name: ${restaurant.name} </p> <p> Location: ${restaurant.location} </p> </div>`
+      return html
     }
 
     function initMap() {
+
       var infoWindow = new google.maps.InfoWindow({
         content: "<p> This is Nutso! </p>"
       });
@@ -51,14 +52,9 @@
           title: r.name
         })
         marker.addListener('click', function() {
-          createContent(r, function(content) {
-            console.log("Content -->", content)
-            infoWindow.content = content;
-            console.log("InfoWindow Content -->", infoWindow.content)
-            console.log("Info Window Content Type -->", typeof infoWindow.content)
-            console.log("Info Window in callback -->", infoWindow)
-            infoWindow.open(map, marker)
-          })
+          inforWindow.content = createContent(r)
+          marker['infoWindow'] = infoWindow;
+          this['infoWindow'].open(map, this)
         });
       })
     }
