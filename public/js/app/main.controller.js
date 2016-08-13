@@ -23,6 +23,20 @@
       })
     }
 
+    function createInfoWindow(restaurant) {
+
+      var contentString = `<div id='info-window'>
+      <p> Name: ${restaurant.name} </p>
+      <p> Location: ${restaurant.location} </p>
+      </div>`
+
+      var infowindow = new google.maps.InfoWindow({
+        content: contentString
+      });
+
+      return infowindow;
+    }
+
     function initMap() {
       // $window.navigator.geolocation.getCurrentPosition(function(position) {
       //   var map = new google.maps.Map(document.getElementById('map'), {
@@ -34,13 +48,21 @@
         center: {lat: 34.052235, lng: -118.243683},
         zoom: 12
       });
-
       vm.restaurants.forEach(function(r) {
         var marker = new google.maps.Marker({
           position: {lat: r.lat, lng: r.lon},
           map: map,
           title: r.name
         })
+        marker.addListener('click', function() {
+          vm.contentString = r.name
+          infowindow.open(map, marker);
+        });
+        var infowindow = createInfoWindow();
+        marker.addListener('click', function() {
+          infowindow.open(map, marker);
+        });
+
       })
     }
 
