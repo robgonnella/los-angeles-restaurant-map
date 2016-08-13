@@ -32,6 +32,8 @@
       var infoWindow = new google.maps.InfoWindow({
         content: ''
       });
+
+      console.log("InfoWindow Instance -->", infoWindow)
       // $window.navigator.geolocation.getCurrentPosition(function(position) {
       //   var map = new google.maps.Map(document.getElementById('map'), {
       //     center: {lat: position.coords.latitude, lng: position.coords.longitude},
@@ -53,6 +55,7 @@
             console.log("Content -->", content)
             infoWindow.content = content;
             console.log("InfoWindow Content -->", infoWindow.content)
+            console.log("Info Window Content Type -->", typeof infoWindow.content)
             infoWindow.open(map, marker)
           })
         });
