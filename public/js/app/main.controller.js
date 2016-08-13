@@ -30,9 +30,7 @@
 
     function initMap() {
 
-      var infoWindow = new google.maps.InfoWindow({
-        content: "<p> This is Nutso! </p>"
-      });
+      var infoWindow = new google.maps.InfoWindow();
 
       console.log("InfoWindow Instance -->", infoWindow)
       // $window.navigator.geolocation.getCurrentPosition(function(position) {
@@ -52,9 +50,10 @@
           title: r.name
         })
         marker.addListener('click', function() {
-          infoWindow.content = createContent(r)
-          marker['infoWindow'] = infoWindow;
-          this['infoWindow'].open(map, this)
+          inforWindow.content = createContent(r)
+          console.log("InfoWindow Content -->", infoWindow.content)
+          console.log("Info Window Content Type -->", typeof infoWindow.content)
+          infoWindow.open(map, marker)
         });
       })
     }
