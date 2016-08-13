@@ -23,11 +23,15 @@
       })
     }
 
+    function openInfoWindow(infoWindow) {
+      infoWindow.open(map, marker);
+    }
+
     function createInfoWindow(contentString) {
       var infowindow = new google.maps.InfoWindow({
         content: contentString
       });
-      return infowindow;
+      openInfoWindow(infoWindow)
     }
 
     function createContentString(restaurant) {
@@ -36,7 +40,7 @@
       <p> Location: ${restaurant.location} </p>
       </div>`
 
-      return contentString
+      createInfoWindow(contentString)
     }
 
     function initMap() {
@@ -56,10 +60,8 @@
           map: map,
           title: r.name
         })
-        var contentString = createContentString(r)
-        var infoWindow = createInfoWindow(contentString)
         marker.addListener('click', function() {
-          infoWindow.open(map, marker);
+          createContentString(r)
         });
       })
     }
