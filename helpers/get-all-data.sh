@@ -13,32 +13,44 @@ cwd=$pwd
 cd $dir
 cd ..
 
-echo "process beginning for foursquare data..."
+if ! [[ $DB ]] ;
+  then
+    echo "You are deleting and restoring your local database..."
+    sleep 2
+    echo "To restore MongoLab/Heroku DB add ENV var DB='production'"
+fi
 
-node $fsq
-
-sleep 2
-
-echo "process beginning for yelp data..."
-
-sleep 2
-
-node $yelp
-
-sleep 2
-
-echo "updating w3w info for all restaurants..."
-
-sleep 2
-
-node $updatew3w
-
-sleep 2
-
-echo "creating hygiened list and saving in separate restaurants collection..."
-
-sleep 2
-
-node $hygiene
+if [[ "$DB" == "production" ]] ;
+  then
+    echo "process beginning for foursquare data..."
+    heroku run node $fsq
+    sleep 2
+    echo "process beginning for yelp data..."
+    sleep 2
+    heroku run node $yelp
+    sleep 2
+    echo "updating w3w info for all restaurants..."
+    sleep 2
+    heroku run node $updatew3w
+    sleep 2
+    echo "creating hygiened list and saving in separate restaurants collection..."
+    sleep 2
+    heroku run node $hygiene
+  else
+    echo "process beginning for foursquare data..."
+    node $fsq
+    sleep 2
+    echo "process beginning for yelp data..."
+    sleep 2
+    node $yelp
+    sleep 2
+    echo "updating w3w info for all restaurants..."
+    sleep 2
+    node $updatew3w
+    sleep 2
+    echo "creating hygiened list and saving in separate restaurants collection..."
+    sleep 2
+    node $hygiene
+  fi
 
 cd $cwd
