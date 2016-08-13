@@ -29,7 +29,9 @@
     }
 
     function initMap() {
-      var infoWindow = new google.maps.InfoWindow();
+      var infoWindow = new google.maps.InfoWindow({
+        content: "<p> This is Nutso! </p>"
+      });
 
       console.log("InfoWindow Instance -->", infoWindow)
       // $window.navigator.geolocation.getCurrentPosition(function(position) {
