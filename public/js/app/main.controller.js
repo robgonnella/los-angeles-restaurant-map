@@ -32,13 +32,14 @@
 
       var infoWindow = new google.maps.InfoWindow();
 
-      console.log("InfoWindow Instance -->", infoWindow)
+      // // use this when ready to geolocate user
       // $window.navigator.geolocation.getCurrentPosition(function(position) {
       //   var map = new google.maps.Map(document.getElementById('map'), {
       //     center: {lat: position.coords.latitude, lng: position.coords.longitude},
       //     zoom: 18
       //   });
       // });
+
       var map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 34.052235, lng: -118.243683},
         zoom: 12
@@ -51,8 +52,6 @@
         })
         marker.addListener('click', function() {
           infoWindow.setContent(createContent(r))
-          console.log("InfoWindow Content -->", infoWindow.content)
-          console.log("Info Window Content Type -->", typeof infoWindow.content)
           infoWindow.open(map, marker)
         });
       })
