@@ -1,9 +1,10 @@
 var mongoose = require('mongoose');
 var env = require('./environment');
 
-//using local db for now
-//switch to different uri for production
-var dbUri = "mongodb://localhost/" + env.safe_title;
+//using mongolab db
+//switch to different uri for local database
+var dbUri = process.env.MONGOLAB_URI
+// var dbUri = "mongodb://localhost/" + env.safe_title;
 
 mongoose.connect(dbUri);
 

@@ -10,7 +10,7 @@ function updateLatLon(rList, wcb) {
   rList = rList.filter(function(r) {
     return !r.latLonUpdated
   });
-  async.eachSeries(rList, function(r, cb) {
+  async.eachLimit(rList, 100, function(r, cb) {
     if (!r.w3w.length || r.latLonUpdated) return cb()
 
     var addrParam = 'addr=' + r.w3w;
