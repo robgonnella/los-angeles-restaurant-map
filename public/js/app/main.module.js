@@ -2,6 +2,6 @@
   'use strict';
 
   angular
-    .module('yelp-fsq-app', []);
+    .module('la-restaurant-map', []);
 
 })();

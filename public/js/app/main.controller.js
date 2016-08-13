@@ -2,7 +2,7 @@
   'use strict';
 
   angular
-    .module('yelp-fsq-app')
+    .module('la-restaurant-map')
     .controller('MainController', MainController);
 
   MainController.$inject = ['$http'];
@@ -37,5 +37,7 @@
         })
       })
     }
+
   };
+
 })();

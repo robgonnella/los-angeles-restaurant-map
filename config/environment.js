@@ -1,8 +1,8 @@
 var _ = require('lodash');
 
 var localEnvVars = {
-  title:      'yelp-fsq-example',
-  safe_title: 'yelp-fsq-example'
+  title:      'la-restaurant-map',
+  safe_title: 'la-restaurant-map'
 };
 
 module.exports = _.extend(process.env, localEnvVars);
