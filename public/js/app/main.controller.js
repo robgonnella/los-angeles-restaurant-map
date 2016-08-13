@@ -10,10 +10,6 @@
   function MainController($http, $window){
     var vm = this;
 
-    vm.infoWindow = new google.maps.InfoWindow({
-      content: ''
-    });
-
     getRestaurants()
 
     function getRestaurants(){
@@ -31,18 +27,21 @@
       infoWindow.open(map, marker);
     }
 
-    function createContentString(restaurant) {
+    function createContentString(restaurant, infoWindow, map) {
       var contentString = `<div id='info-window'>
       <p> Name: ${restaurant.name} </p>
       <p> Location: ${restaurant.location} </p>
       </div>`
 
-      vm.infoWindow.content = contentString;
-      openInfoWindow(vm.infoWindow)
+      infoWindow.content = contentString;
+      openInfoWindow(infoWindow, map)
 
     }
 
     function initMap() {
+      var infoWindow = new google.maps.InfoWindow({
+        content: ''
+      });
       // $window.navigator.geolocation.getCurrentPosition(function(position) {
       //   var map = new google.maps.Map(document.getElementById('map'), {
       //     center: {lat: position.coords.latitude, lng: position.coords.longitude},
@@ -60,7 +59,7 @@
           title: r.name
         })
         marker.addListener('click', function() {
-          createContentString(r)
+          createContentString(r, infoWindow, map)
         });
       })
     }
