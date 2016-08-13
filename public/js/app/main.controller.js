@@ -50,7 +50,9 @@
         })
         marker.addListener('click', function() {
           createContent(r, function(content) {
+            console.log("Content -->", content)
             infoWindow.content = content;
+            console.log("InfoWindow Content -->", infoWindow.content)
             infoWindow.open(map, marker)
           })
         });
