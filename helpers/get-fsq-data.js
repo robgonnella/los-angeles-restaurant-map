@@ -28,12 +28,13 @@ function saveFsqVenues(venues, wcb) {
     var name = venue.name ? venue.name.toLowerCase().trim() : null;
 
     var newV = {
-      name:       name,
-      location:   loc,
-      category:   'restaurant',
-      type:       'fsq',
-      lat:        lat,
-      lon:        lon
+      name:          name,
+      location:      loc,
+      category:      'restaurant',
+      type:          'fsq',
+      lat:           lat,
+      lon:           lon,
+      latLonUpdated: false
     }
 
     if ( ! ( newV.location || ( newV.lat && newV.lon ) ) ) return cb()

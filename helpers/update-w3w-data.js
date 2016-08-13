@@ -8,10 +8,11 @@ function updateLatLon(rList, wcb) {
   var baseUri = "https://api.what3words.com/v2/forward"
   var keyParam = "&key=" + process.env.W3W_KEY;
   rList = rList.filter(function(r) {
-    return r.w3w.length > 0
+    return !r.latLonUpdated
   });
-  async.eachLimit(rList, 100, function(r, cb) {
-    if (!r.w3w.length) return cb()
+  async.eachSeries(rList, function(r, cb) {
+    if (!r.w3w.length || r.latLonUpdated) return cb()
+
     var addrParam = 'addr=' + r.w3w;
     var url = baseUri + '?' + addrParam + keyParam
 
@@ -25,6 +26,7 @@ function updateLatLon(rList, wcb) {
       }
       r.lat = data.geometry.lat
       r.lon = data.geometry.lng
+      r.latLonUpdated = true
       r.save();
       console.log(`updated ${r.name} lat / lon to ${r.lat}, ${r.lon}`)
       cb();

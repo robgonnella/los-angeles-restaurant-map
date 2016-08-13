@@ -28,12 +28,13 @@ function saveYelpList(businesses, wcb){
     var name = business.name ? business.name.toLowerCase().trim() : null;
 
     var newR = {
-      name:      name,
-      location:  loc,
-      category:  'restaurant',
-      type:      'yelp',
-      lat:       lat,
-      lon:       lon
+      name:          name,
+      location:      loc,
+      category:      'restaurant',
+      type:          'yelp',
+      lat:           lat,
+      lon:           lon,
+      latLonUpdated: false
     }
 
     if( ! ( newR.location || ( newR.lat && newR.lon ) ) ) return cb();
