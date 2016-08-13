@@ -14,7 +14,7 @@
 
 
     function getRestaurants(){
-      $http.get('https://fierce-oasis-92862.herokuapp.com/api/restaurants')
+      $http.get('http://fierce-oasis-92862.herokuapp.com/api/restaurants')
       .then(function(success){
         vm.restaurants = success.data.restaurants;
         initMap()
