@@ -34,6 +34,9 @@
       </div>`
 
       infoWindow.content = contentString;
+
+      console.log(infoWindow)
+      
       openInfoWindow(infoWindow, marker, map)
 
     }
