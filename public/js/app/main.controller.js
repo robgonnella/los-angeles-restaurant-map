@@ -44,11 +44,17 @@
         center: {lat: 34.052235, lng: -118.243683},
         zoom: 12
       });
+
+      var icon = {
+        url: './assets/taco-icon.png',
+        size: new google.maps.Size(20,32)
+      }
+      
       vm.restaurants.forEach(function(r) {
         var marker = new google.maps.Marker({
           position: {lat: r.lat, lng: r.lon},
           map: map,
-          icon: './assets/taco-icon.png',
+          icon: icon,
           title: r.name
         })
         marker.addListener('click', function() {
